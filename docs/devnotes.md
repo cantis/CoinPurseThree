@@ -10,5 +10,6 @@ The site is up at http://localhost:8000/ and the docs are at http://localhost:80
 
 *NOTE: An alternative format for the docs is http://localhost:8000/redoc*
 
-
+## Devcontainer
+The app also has a .devcontainer configured with it, works well starts up smoothly and runs 
 
