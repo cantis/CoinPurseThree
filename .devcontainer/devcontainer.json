@@ -24,7 +24,8 @@
 			"esbenp.prettier-vscode",
 			"ms-python.vscode-pylance",
 			"ms-python.python",
-			"charliermarsh.ruff"
+			"charliermarsh.ruff",
+			"PKief.material-icon-theme"
 		]
 	}
 },

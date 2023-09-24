@@ -13,6 +13,16 @@ class Character(BaseModel):
     character_class: str
     is_active: bool
 
+class Transaction(BaseModel):
+    player: int
+    item: int
+    price: int
+    is_sale: bool
+
+# In memory data store for now...
+players = []
+characters = []
+transactions = []
 
 @app.get("/")
 async def root():
@@ -21,7 +31,7 @@ async def root():
 @app.get('/player/')
 async def list_players():
     '''Get a list of players'''
-    return {'message': 'player'}
+    return players
 
 @app.get('/player/{id}')
 async def get_player_by_id(id:int):
@@ -31,6 +41,7 @@ async def get_player_by_id(id:int):
 @app.post('/player/')
 async def create_player(player: Player):
     '''Add a new player'''
+    players.append(player)
     return {'Player Name:': player.name}
 
 @app.put('/player/')
@@ -46,7 +57,7 @@ async def delete_player(id:int):
 @app.get('/character/')
 async def list_characters():
     '''Get a list of characters'''
-    return {'message': 'character'}
+    return characters
 
 @app.get('/character/{id}')
 async def get_character_by_id(id:int):
@@ -56,7 +67,7 @@ async def get_character_by_id(id:int):
 @app.post('/character/')
 async def create_character(character: Character):
     '''Add a new character'''
-    return {'Character Name:': character.charcter_name}
+    characters.append(character)
 
 @app.put('/character/')
 async def update_character(character: Character):
@@ -70,9 +81,10 @@ async def delete_character(id:int):
 
 @app.get('/buy/')
 async def buy():
+    '''Remove money from player, optional: record item in inventory'''
     return {'message': 'buy'}
 
-
-
-
-
+@app.get('/sell/')
+async def sell():
+    '''Add money to player, optional: remove item from inventory'''
+    return {'message': 'sell'}
