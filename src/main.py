@@ -12,18 +12,15 @@ app = FastAPI(
 
 app.include_router(
     characters_router,
-    prefix='/characters',
     tags=['Characters'],
 )
 
 app.include_router(
     players_router,
-    prefix='/players',
     tags=['Players'],
 )
 
 app.include_router(
     transaction_router,
-    prefix='/transactions',
     tags=['Transactions'],
 )
