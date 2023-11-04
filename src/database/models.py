@@ -1,37 +1,11 @@
-from sqlalchemy import create_engine, Column, Integer, String, Boolean, Float, DateTime
-from sqlalchemy.orm import sessionmaker, DeclarativeBase, Mapped, mapped_column
-from pydantic import BaseModel, EmailStr, Field
-from datetime import datetime
-from typing import Optional
-
-# Pydantic Models (DTOs)
-class Player(BaseModel):
-    userId: int
-    playerName: str
-    password: str
-    email: EmailStr
-    isAdmin: Optional[bool] = False
-
-
-class Character(BaseModel):
-    characterId: int
-    characterName: str
-    userId: int
-    isActive: bool = True
-
-
-class Transaction(BaseModel):
-    transactionId: int
-    characterId: int
-    amount: float = Field(..., precision=2)
-    description: Optional[str] = None
-    transactionDate: datetime
+from sqlalchemy import Column, Integer, String, Boolean, Float, DateTime
+from sqlalchemy.orm import DeclarativeBase
 
 
 class Base(DeclarativeBase):
     pass
 
-# SQLAlchemy models
+
 class DbPlayer(Base):
     __tablename__ = 'players'
 

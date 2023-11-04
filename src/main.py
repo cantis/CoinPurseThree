@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from database import Base
+from database.models import Base
 
 DATABASE_URL = "sqlite:///../instance/coin_purse.db"
 
