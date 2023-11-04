@@ -9,8 +9,8 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-fastapi = "^0.103.1"
 pydantic = "^2.3.0"
+fastapi = {extras = ["all"], version = "^0.104.1"}
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.9.1"
