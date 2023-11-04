@@ -1,26 +1,30 @@
 from fastapi import FastAPI
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 from src.routers.characters import router as characters_router
 from src.routers.players import router as players_router
 from src.routers.transaction import router as transaction_router
 
-app = FastAPI(
-    title='Coinpurse API',
-    description='An API to manage an RPG character\'s coinpurse. Records purchases and sales of items and current balance of coins.',
-    version='0.0.1',
-)
+from src.database import Base
 
-app.include_router(
-    characters_router,
-    tags=['Characters'],
-)
+DATABASE_URL = "sqlite:///./coin_purse.db"
 
-app.include_router(
-    players_router,
-    tags=['Players'],
-)
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-app.include_router(
-    transaction_router,
-    tags=['Transactions'],
-)
+app = FastAPI()
+
+
+# Dependency to get the database session
+def get_db():
+    database = SessionLocal()
+    try:
+        yield database
+    finally:
+        database.close()
+
+
+@app.on_event("startup")
+async def startup():
+    Base.metadata.create_all(bind=engine)
