@@ -1,3 +1,4 @@
+"""Coinpurse API."""
 from fastapi import FastAPI
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -24,7 +25,8 @@ def get_db():
 async def startup():
     Base.metadata.create_all(bind=engine)
 
-# App Running check
+
 @app.get("/")
 async def root():
-    return {"message": "Hello World"}
+    """Root endpoint for the API."""
+    return {"message": "Coinpurse is UP!"}

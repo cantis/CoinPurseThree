@@ -1,3 +1,4 @@
+"""Sqlalchemy models for the database."""
 from sqlalchemy import Column, Integer, String, Boolean, Float, DateTime
 from sqlalchemy.orm import DeclarativeBase
 
