@@ -4,12 +4,6 @@ from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
 from typing import Optional
 
-
-# SQLALCHEMY_DATABASE_URL = "postgresql://user:password@postgresserver/db"
-
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 # Pydantic Models (DTOs)
 class Player(BaseModel):
     userId: int
@@ -23,7 +17,7 @@ class Character(BaseModel):
     characterId: int
     characterName: str
     userId: int
-    isActive: bool[bool] = True
+    isActive: bool = True
 
 
 class Transaction(BaseModel):
