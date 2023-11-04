@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker
 
 from database import Base
 
-DATABASE_URL = "sqlite:///./coin_purse.db"
+DATABASE_URL = "sqlite:///../instance/coin_purse.db"
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
