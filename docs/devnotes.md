@@ -22,3 +22,17 @@ The container image that I have chosen also includes a postgresql server, so I c
 * [ ] Add a database connection
 * [ ] Add a database migration
 * [ ] Add a database seed
+
+## Alembic notes
+
+To initialize alembic (creates a folder called alembic)
+`PS alembic init alembic `
+
+To create a migration
+`PS alembic revision --autogenerate -m "create player table" `
+
+To run the migration
+`PS alembic upgrade head `
+
+To create alembic database
+`PS alembic upgrade head `
