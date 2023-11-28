@@ -1,11 +1,8 @@
 """Sqlalchemy models for the database."""
 from sqlalchemy import Column, Integer, String, Boolean, Float, DateTime
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.ext.declarative import declarative_base
 
-
-class Base(DeclarativeBase):
-    pass
-
+Base = declarative_base()
 
 class DbPlayer(Base):
     __tablename__ = 'players'
