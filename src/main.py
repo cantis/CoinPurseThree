@@ -27,7 +27,7 @@ def get_db() -> None:
         database.close()
 
 
-@app.get('/')
+@app.get('/', tags=["Test"])
 async def root() -> dict:
     """Root endpoint for the API."""
     return {'message': 'Coinpurse is UP!'}

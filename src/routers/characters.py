@@ -10,23 +10,23 @@ class Character(BaseModel):
 
 characters = []
 
-@router.get("/characters")
+@router.get("/characters", tags=["Characters"])
 def get_characters():
     return characters
 
-@router.get("/characters/{character_id}")
+@router.get("/characters/{character_id}", tags=["Characters"])
 def get_character(character_id: int):
     for character in characters:
         if character["id"] == character_id:
             return character
     return {"message": "Character not found"}
 
-@router.post("/characters")
+@router.post("/characters", tags=["Characters"])
 def create_character(character: dict):
     characters.append(character)
     return {"message": "Character created successfully"}
 
-@router.put("/characters/{character_id}")
+@router.put("/characters/{character_id}", tags=["Characters"])
 def update_character(character_id: int, updated_character: dict):
     for character in characters:
         if character["id"] == character_id:
@@ -34,7 +34,7 @@ def update_character(character_id: int, updated_character: dict):
             return {"message": "Character updated successfully"}
     return {"message": "Character not found"}
 
-@router.delete("/characters/{character_id}")
+@router.delete("/characters/{character_id}", tags=["Characters"])
 def delete_character(character_id: int):
     for character in characters:
         if character["id"] == character_id:
