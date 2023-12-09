@@ -29,7 +29,6 @@ quote-style = "single"
 [tool.ruff.lint.pycodestyle]
 max-line-length = 120
 
-
 [tool.pytest.ini_options]
 # -ra is for showing the output of the tests that failed
 # -q is for quiet mode
