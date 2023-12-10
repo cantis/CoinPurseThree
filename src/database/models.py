@@ -4,6 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
+
 class DbPlayer(Base):
     __tablename__ = 'players'
 
@@ -19,7 +20,7 @@ class DbCharacter(Base):
 
     characterId = Column(Integer, primary_key=True)
     characterName = Column(String)
-    userId = Column(Integer)
+    playerId = Column(Integer)
     isActive = Column(Boolean, default=True)
 
 
