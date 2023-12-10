@@ -1,11 +1,12 @@
 from fastapi import APIRouter
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 router = APIRouter()
 
 class Transaction(BaseModel):
+    """Represents a transaction, adding or removing funds from a character's wallet."""
     id: int
-    amount: float
+    amount: float = Field (..., description="Positive for deposits, negative for withdrawals.")
     description: str
 
 transactions = []

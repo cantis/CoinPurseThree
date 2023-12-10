@@ -6,6 +6,8 @@ router = APIRouter()
 
 
 class Player(BaseModel):
+    """Represents a player in the game."""
+
     userId: int
     playerName: str
     password: str
@@ -13,7 +15,6 @@ class Player(BaseModel):
     isAdmin: Optional[bool] = False
 
 
-# In-memory storage for players
 players = {}
 
 
