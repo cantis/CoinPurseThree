@@ -18,10 +18,14 @@ The container image that I have chosen also includes a postgresql server, so I c
 ## Tasks
 * [x] Add a devcontainer
 * [x] Split the app into a main.py a router.py and a several routers
-* [ ] Add Models for Player, Character, Transaction
-* [ ] Add a database connection
-* [ ] Add a database migration
-* [ ] Add a database seed
+* [x] Add Models for Player, Character, Transaction
+* [x] Add a database connection
+* [x] Add a database migration
+* [ ] Add a database seed (required for operation, if any)
+* [ ] Add a database test seed (required for testing)
+* [ ] Add Tests for Player
+* [ ] Add Tests for Character
+* [ ] Add Tests for Transaction
 
 ## Alembic notes
 
