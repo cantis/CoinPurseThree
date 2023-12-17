@@ -6,6 +6,7 @@ Base = declarative_base()
 
 
 class DbPlayer(Base):
+    """DB Model for a player in the game."""
     __tablename__ = 'players'
 
     userId = Column(Integer, primary_key=True)
@@ -17,6 +18,7 @@ class DbPlayer(Base):
 
 
 class DbCharacter(Base):
+    """DB Model for a character in the game."""
     __tablename__ = 'characters'
 
     characterId = Column(Integer, primary_key=True)
@@ -26,6 +28,7 @@ class DbCharacter(Base):
 
 
 class DbTransaction(Base):
+    """DB Model for a transaction in the game."""
     __tablename__ = 'transactions'
 
     transactionId = Column(Integer, primary_key=True)

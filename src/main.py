@@ -9,7 +9,7 @@ INSTANCE_FOLDER_PATH = '../instance'
 DATABASE_URL = 'sqlite:///coin_purse.db'
 
 engine = create_engine(DATABASE_URL)
-sesh = sessionmaker(autocommit=False, autoflush=False, bind=create_engine(DATABASE_URL))
+session = sessionmaker(autocommit=False, autoflush=False, bind=create_engine(DATABASE_URL))
 
 # Create the FastAPI app and set some metadata
 # See https://fastapi.tiangolo.com/tutorial/metadata/ for notes on openapi_tags (these show up in the swagger docs)
@@ -46,14 +46,14 @@ app.include_router(transaction.router)
 # Dependency to get the database session
 def get_db() -> None:
     """Get a database session."""
-    db = sesh()
+    db = session()
     try:
         yield db
     finally:
         db.close()
 
 
-@app.get('/', tags=['Test'])
-async def root() -> dict:
+@app.get('/', tags=['Healthcheck'])
+async def root():
     """Root endpoint for the API."""
     return {'message': 'Coinpurse is UP!'}

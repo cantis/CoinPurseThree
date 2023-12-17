@@ -2,6 +2,9 @@ from pydantic import BaseModel, EmailStr
 from typing import Optional
 from fastapi import APIRouter
 
+# from database.models import DbPlayer
+# from main import get_db
+
 router = APIRouter()
 
 
@@ -16,12 +19,22 @@ class Player(BaseModel):
 
 
 players = {}
+# db = get_db()
 
 
-@router.post('/players/', tags=['Players'])
-async def create_player(player: Player):
-    players[player.userId] = player
-    return {'message': 'Player created'}
+# @router.post('/players/', tags=['Players'])
+# async def create_player(player: Player) -> Player:
+#     new_player = DbPlayer(
+#         userId=player.userId,
+#         playerName=player.playerName,
+#         password=player.password,
+#         email=player.email,
+#         isAdmin=player.isAdmin,
+#     )
+#     db.add(new_player)
+#     db.commit()
+#     db.refresh(new_player)
+#     return new_player
 
 
 @router.get('/players/{user_id}', tags=['Players'])
