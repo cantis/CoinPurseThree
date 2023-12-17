@@ -1,9 +1,10 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 from fastapi import APIRouter
+from fastapi.params import Depends
+from sqlalchemy.orm.session import Session
 
-# from database.models import DbPlayer
-# from main import get_db
+from database.models import get_db, DbPlayer
 
 router = APIRouter()
 
@@ -19,22 +20,20 @@ class Player(BaseModel):
 
 
 players = {}
-# db = get_db()
 
 
-# @router.post('/players/', tags=['Players'])
-# async def create_player(player: Player) -> Player:
-#     new_player = DbPlayer(
-#         userId=player.userId,
-#         playerName=player.playerName,
-#         password=player.password,
-#         email=player.email,
-#         isAdmin=player.isAdmin,
-#     )
-#     db.add(new_player)
-#     db.commit()
-#     db.refresh(new_player)
-#     return new_player
+@router.post('/players/', tags=['Players'])
+async def create_player(player: Player, db: Session = Depends(get_db)) -> Player:
+    dbPlayerToAdd = DbPlayer(
+        playerName=player.playerName,
+        password=player.password,
+        email=player.email,
+        isAdmin=player.isAdmin,
+    )
+    db.add(dbPlayerToAdd)
+    db.commit()
+    db.refresh(dbPlayerToAdd)
+    return dbPlayerToAdd
 
 
 @router.get('/players/{user_id}', tags=['Players'])

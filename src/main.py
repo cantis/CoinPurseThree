@@ -1,15 +1,8 @@
 """Coinpurse API."""
 from fastapi import FastAPI
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from routers import players, characters, transaction
 
 INSTANCE_FOLDER_PATH = '../instance'
-# DATABASE_URL = 'sqlite:///../instance/coin_purse.db'
-DATABASE_URL = 'sqlite:///coin_purse.db'
-
-engine = create_engine(DATABASE_URL)
-session = sessionmaker(autocommit=False, autoflush=False, bind=create_engine(DATABASE_URL))
 
 # Create the FastAPI app and set some metadata
 # See https://fastapi.tiangolo.com/tutorial/metadata/ for notes on openapi_tags (these show up in the swagger docs)
@@ -41,16 +34,6 @@ app = FastAPI(
 app.include_router(players.router)
 app.include_router(characters.router)
 app.include_router(transaction.router)
-
-
-# Dependency to get the database session
-def get_db() -> None:
-    """Get a database session."""
-    db = session()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 @app.get('/', tags=['Healthcheck'])

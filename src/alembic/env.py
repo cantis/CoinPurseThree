@@ -41,7 +41,7 @@ def run_migrations_offline() -> None:
 
     """
     # url = config.get_main_option('sqlalchemy.url')
-    url = 'sqlite:///../instance/coin_purse.db'
+    url = 'sqlite:///instance/coin_purse.db'
     context.configure(
         url=url,
         target_metadata=target_metadata,
