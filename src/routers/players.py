@@ -1,14 +1,13 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 from fastapi import APIRouter
-from src.main import get_db
-from src.database.models import Player as PlayerTable
 
 router = APIRouter()
 
 
 class Player(BaseModel):
     """Represents a player in the game."""
+
     userId: int
     playerName: str
     password: str
@@ -17,24 +16,10 @@ class Player(BaseModel):
 
 
 players = {}
-db = get_db()
 
 
 @router.post('/players/', tags=['Players'])
 async def create_player(player: Player):
-    if player.userId in players:
-        return {'message': 'Player already exists'}
-
-    db_player = PlayerTable(
-        userId=player.userId,
-        playerName=player.playerName,
-        password=player.password,
-        email=player.email,
-        isAdmin=player.isAdmin
-    )
-    db.add(db_player)
-    db.commit()
-
     players[player.userId] = player
     return {'message': 'Player created'}
 

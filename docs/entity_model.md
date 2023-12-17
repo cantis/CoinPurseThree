@@ -12,6 +12,7 @@ erDiagram
         string password
         string email
         bool isAdmin "optional, default false"
+        bool isActive "optional, default true"
     }
 
     CHARACTER {

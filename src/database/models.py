@@ -13,6 +13,7 @@ class DbPlayer(Base):
     password = Column(String)
     email = Column(String)
     isAdmin = Column(Boolean, default=False)
+    isActive = Column(Boolean, default=True)
 
 
 class DbCharacter(Base):
