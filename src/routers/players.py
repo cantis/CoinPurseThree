@@ -19,9 +19,6 @@ class Player(BaseModel):
     isAdmin: Optional[bool] = False
 
 
-players = {}
-
-
 @router.post('/players/', tags=['Players'])
 async def create_player(player: Player, db: Session = Depends(get_db)) -> Player:
     dbPlayerToAdd = DbPlayer(
@@ -37,29 +34,55 @@ async def create_player(player: Player, db: Session = Depends(get_db)) -> Player
 
 
 @router.get('/players/{user_id}', tags=['Players'])
-async def read_player(user_id: int):
-    player = players.get(user_id)
-    if not player:
+async def read_player(user_id: int, db: Session = Depends(get_db)):
+    db_player = db.query(DbPlayer).filter(DbPlayer.userId == user_id).first()
+    if db_player is None:
         return {'message': 'Player not found'}
+    player = Player(
+        userId=db_player.userId,
+        playerName=db_player.playerName,
+        password=db_player.password,
+        email=db_player.email,
+        isAdmin=db_player.isAdmin,
+    )
     return player
 
 
 @router.put('/players/{user_id}', tags=['Players'])
-async def update_player(user_id: int, player: Player):
-    if user_id not in players:
+async def update_player(user_id: int, player: Player, db: Session = Depends(get_db)):
+    db_player = db.query(DbPlayer).filter(DbPlayer.userId == user_id).first()
+    if db_player is None:
         return {'message': 'Player not found'}
-    players[user_id] = player
-    return {'message': 'Player updated'}
+    db_player.playerName = player.playerName
+    db_player.password = player.password
+    db_player.email = player.email
+    db_player.isAdmin = player.isAdmin
+    db.commit()
+    db.refresh(db_player)
+    return db_player
 
 
 @router.delete('/players/{user_id}', tags=['Players'])
-async def delete_player(user_id: int):
-    if user_id not in players:
+async def delete_player(user_id: int, db: Session = Depends(get_db)):
+    db_player = db.query(DbPlayer).filter(DbPlayer.userId == user_id).first()
+    if db_player is None:
         return {'message': 'Player not found'}
-    del players[user_id]
+    db.delete(db_player)
+    db.commit()
     return {'message': 'Player deleted'}
 
 
 @router.get('/players/', tags=['Players'])
-async def get_all_players():
-    return list(players.values())
+async def get_all_players(db: Session = Depends(get_db)):
+    db_players = db.query(DbPlayer).all()
+    players = []
+    for db_player in db_players:
+        player = Player(
+            userId=db_player.userId,
+            playerName=db_player.playerName,
+            password=db_player.password,
+            email=db_player.email,
+            isAdmin=db_player.isAdmin,
+        )
+        players.append(player)
+    return players

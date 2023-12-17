@@ -10,7 +10,7 @@ class Base(DeclarativeBase):
     pass
 
 def get_db():
-    """Get a database session."""
+    """Get database session."""
     database = SessionLocal()
     try:
         yield database
