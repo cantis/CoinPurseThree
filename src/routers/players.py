@@ -69,7 +69,6 @@ async def update_player(user_id: int, player: Player, db: Session = Depends(get_
     return player
 
 
-
 @router.delete('/players/{user_id}', tags=['Players'], status_code=204)
 async def delete_player(user_id: int, db: Session = Depends(get_db)):
     db_player = db.query(DbPlayer).filter(DbPlayer.userId == user_id).first()
