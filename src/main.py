@@ -1,8 +1,23 @@
 """Coinpurse API."""
-from fastapi import FastAPI
+from fastapi import FastAPI, status
+from fastapi.exceptions import RequestValidationError
+from fastapi.requests import Request
+from fastapi.responses import JSONResponse
+import logging
+
 from routers import players, characters, transaction
 
+logging.basicConfig(
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    filename='coinpurse.log',
+    filemode='a',
+    level=logging.DEBUG,
+)
+logging.debug('Coinpurse: Starting')
+
+
 INSTANCE_FOLDER_PATH = '../instance'
+
 
 # Create the FastAPI app and set some metadata
 # See https://fastapi.tiangolo.com/tutorial/metadata/ for notes on openapi_tags (these show up in the swagger docs)
@@ -38,5 +53,19 @@ app.include_router(transaction.router)
 
 @app.get('/', tags=['Healthcheck'])
 async def root():
+    logging.debug('root endpoint')
     """Root endpoint for the API."""
     return {'message': 'Coinpurse is UP!'}
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(
+    self, request: Request, exc: RequestValidationError
+) -> JSONResponse:
+    logging.debug('validation_exception_handler')
+    exc_str = f'{exc}'.replace('\n', ' ').replace('   ', ' ')
+    # self.logger.error(f'{request}: {exc_str}')
+    content = {'status_code': 10422, 'message': exc_str, 'data': None}
+    return JSONResponse(
+        content=content, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY
+    )
