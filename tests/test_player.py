@@ -1,31 +1,30 @@
 from alembic import command
 from alembic.config import Config
 from fastapi.testclient import TestClient
-from os import environ, path
+import logging
+import os
+from os import path
 import pytest
-from sqlalchemy import create_engine, StaticPool, inspect
+from sqlalchemy import create_engine, StaticPool
 from sqlalchemy.orm import sessionmaker
 
-from src.main import app, logger
+from src.main import app
 from database.models import get_db
-from alembic import op
-import sqlalchemy as sa
 
-# logging.basicConfig(level=logging.DEBUG,
-#                     format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
-#                     datefmt='%H:%M:%S',
-#                     filename='../migration.log',
-#                     filemode='a',
-#                     )
-# logging.info('Starting tests')
-# logger = logging.getLogger('alembic')
-# logging.getLogger('alembic').setLevel(logging.DEBUG)
 
-logger.debug('Starting tests')
+LOG_PATH = path.join(path.dirname(path.abspath(__file__)), '../tests/test.log')
+logging.basicConfig(
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    filename=LOG_PATH,
+    filemode='a',
+    level=logging.DEBUG,
+)
+logging.debug('Test Initalize')
 
 client = TestClient(app)
 
 TEST_DATABASE_URL = 'sqlite:///:memory:'
+# TEST_DATABASE_URL = 'sqlite:///instance/coin_purse_temp_test.db'
 
 engine = create_engine(
     TEST_DATABASE_URL,
@@ -36,7 +35,8 @@ engine = create_engine(
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# This method and the dependency_overide, overrides the get_db method in the main.py file
+
+# This method and the dependency_overide below, override the get_db method in the main.py file for testing
 def override_get_db():
     """Override the database session for testing."""
     database = TestingSessionLocal()
@@ -45,32 +45,42 @@ def override_get_db():
     finally:
         database.close()
 
+
 app.dependency_overrides[get_db] = override_get_db
 
 
-# Setup the database for testing
 @pytest.fixture(scope='session', autouse=True)
-def apply_migrations():
+def create_test_database():
     """Setup the database for testing."""
-    logger.debug('Applying migrations')
+
+    # # Drop the database
+    logging.debug('Dropping the database')
+    # file_path = TEST_DATABASE_URL.removeprefix('sqlite:///')
+    # if path.exists(file_path):
+    #     os.remove(file_path)
+
+    # Create the database
+    logging.debug('Applying migrations')
     engine = create_engine(TEST_DATABASE_URL)
+    alembic_cfg = Config()
     with engine.begin() as connection:
-        alembic_cfg = Config('alembic.ini')
-        alembic_cfg.attributes['configure_logger'] = True
         alembic_cfg.attributes['connection'] = connection
+        alembic_cfg.set_main_option('sqlalchemy.url', TEST_DATABASE_URL)
         alembic_cfg.set_main_option('script_location', './src/alembic')
         try:
-            command.ensure_version(alembic_cfg)
-            command.upgrade(alembic_cfg, 'heads')
-            connection.commit()
+            command.upgrade(alembic_cfg, 'head')
         except Exception as e:
-            print(f'Exception: {e}')
-
-        assert inspect(engine).has_table('players') is True
+            logging.error(f'Exception during migration: {e}')
+            raise e
         yield
+        # Clean up
         engine.dispose()
+        # logging.debug('Dropping the database')
+        # if path.exists(file_path):
+        #     os.remove(file_path)
 
-def test_create_player():
+
+def test_create_player(create_test_database) -> None:
     # arrange
     data = {
         'playerName': 'test_player',
@@ -90,6 +100,22 @@ def test_create_player():
 
     # assert
     assert response.status_code == 201
+    response_data = response.json()
+    assert response_data['playerId'] == 1
+    assert response_data['playerName'] == 'test_player'
+    assert response_data['password'] == 'test_password'
+    assert response_data['email'] == 'test@noplace.com'
+    assert response_data['isAdmin'] is False
+
+
+def test_get_player(create_test_database) -> None:
+    # arrange
+
+    # act
+    response = client.get('/players/1')
+
+    # assert
+    assert response.status_code == 200
     response_data = response.json()
     assert response_data['playerId'] == 1
     assert response_data['playerName'] == 'test_player'

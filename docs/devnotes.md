@@ -40,3 +40,6 @@ To run the migration
 
 To create alembic database
 `PS alembic upgrade head `
+
+**28 Feb 24**
+Going to try and continue with the test setup but for now it will be with an 'on disk' database.
