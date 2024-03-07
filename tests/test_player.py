@@ -1,5 +1,4 @@
 from fastapi.testclient import TestClient
-import logging
 import os
 from os import path
 import pytest
@@ -8,16 +7,6 @@ from sqlalchemy.orm import sessionmaker
 
 from src.main import app
 from database.models import get_db, Base
-
-
-LOG_PATH = path.join(path.dirname(path.abspath(__file__)), '../tests/test.log')
-logging.basicConfig(
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    filename=LOG_PATH,
-    filemode='a',
-    level=logging.DEBUG,
-)
-logging.debug('Test Initalize')
 
 client = TestClient(app)
 
@@ -34,6 +23,7 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 
 
 # This method and the dependency_overide below, override the get_db method in the main.py file for testing
+# this works like a mock, but it's not a mock. It's a real database session that is used for testing
 def override_get_db():
     """Override the database session for testing."""
     database = TestingSessionLocal()
@@ -48,24 +38,24 @@ app.dependency_overrides[get_db] = override_get_db
 
 @pytest.fixture(scope='module', autouse=True)
 def create_test_database():
-    """Setup the database for testing."""
-    # Drop the database if it exists
+    """Setup the database for the test session and teardown after"""
+
     # Note: as of 2024-03-07, migrations are not working with the in-memory database
     # so I'm working 'on disk' for now. This seems to be a known problem with alembic/sqlalchemy
-    logging.debug('Dropping the database')
+
+    # Drop the database if it exists
     file_path = TEST_DATABASE_URL.removeprefix('sqlite:///')
     if path.exists(file_path):
         os.remove(file_path)
 
     # Create the database
-    logging.debug('Applying migrations')
     engine = create_engine(TEST_DATABASE_URL)
     Base.metadata.create_all(engine)
     yield
     engine.dispose()
 
 
-def test_create_player(create_test_database: None) -> None:
+def test_create_player() -> None:
     # arrange
     data = {
         'playerName': 'test_player',
@@ -93,7 +83,7 @@ def test_create_player(create_test_database: None) -> None:
     assert response_data['isAdmin'] is False
 
 
-def test_get_player(create_test_database: None) -> None:
+def test_get_player() -> None:
     # arrange
 
     # act
