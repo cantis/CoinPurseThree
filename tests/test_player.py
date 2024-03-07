@@ -1,5 +1,3 @@
-from alembic import command
-from alembic.config import Config
 from fastapi.testclient import TestClient
 import logging
 import os
@@ -23,7 +21,6 @@ logging.debug('Test Initalize')
 
 client = TestClient(app)
 
-# TEST_DATABASE_URL = 'sqlite:///:memory:'
 TEST_DATABASE_URL = 'sqlite:///instance/coin_purse_temp_test.db'
 
 engine = create_engine(
@@ -52,8 +49,9 @@ app.dependency_overrides[get_db] = override_get_db
 @pytest.fixture(scope='module', autouse=True)
 def create_test_database():
     """Setup the database for testing."""
-
-    # # Drop the database
+    # Drop the database if it exists
+    # Note: as of 2024-03-07, migrations are not working with the in-memory database
+    # so I'm working 'on disk' for now. This seems to be a known problem with alembic/sqlalchemy
     logging.debug('Dropping the database')
     file_path = TEST_DATABASE_URL.removeprefix('sqlite:///')
     if path.exists(file_path):
@@ -65,23 +63,6 @@ def create_test_database():
     Base.metadata.create_all(engine)
     yield
     engine.dispose()
-    # alembic_cfg = Config()
-    # with engine.begin() as connection:
-        # alembic_cfg.attributes['connection'] = connection
-        # alembic_cfg.set_main_option('sqlalchemy.url', TEST_DATABASE_URL)
-        # alembic_cfg.set_main_option('script_location', './src/alembic')
-        # try:
-
-        #     # command.upgrade(alembic_cfg, 'head')
-        # except Exception as e:
-        #     logging.error(f'Exception during migration: {e}')
-        #     raise e
-        # yield
-        # Clean up
-        # engine.dispose()
-        # logging.debug('Dropping the database')
-        # if path.exists(file_path):
-        #     os.remove(file_path)
 
 
 def test_create_player(create_test_database: None) -> None:
