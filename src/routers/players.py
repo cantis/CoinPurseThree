@@ -1,12 +1,13 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from fastapi.params import Depends
 import logging
 from pydantic import BaseModel, EmailStr
-
 from sqlalchemy.orm.session import Session
 from typing import Optional
 
 from database.models import get_db, DbPlayer
+
+
 
 router = APIRouter()
 
@@ -21,7 +22,6 @@ logging.basicConfig(
 # region Pydantic Models
 class CreatePlayer(BaseModel):
     """Create a player."""
-
     playerName: str
     password: str
     email: EmailStr
@@ -31,7 +31,6 @@ class CreatePlayer(BaseModel):
 
 class UpdatePlayer(BaseModel):
     """Update a player."""
-
     playerName: Optional[str]
     password: Optional[str]
     email: Optional[EmailStr]
@@ -41,7 +40,6 @@ class UpdatePlayer(BaseModel):
 
 class Player(BaseModel):
     """Represents a player."""
-
     playerId: int
     playerName: str
     password: str
@@ -53,7 +51,7 @@ class Player(BaseModel):
 # endregion
 
 
-@router.post('/players/', tags=['Players'], status_code=201)
+@router.post('/players/', tags=['Players'], status_code=201, response_model=Player)
 async def create_player(player: CreatePlayer, db: Session = Depends(get_db)) -> Player:
     logging.debug(f'Create Player: {player}')
     dbPlayerToAdd = DbPlayer(
@@ -69,12 +67,12 @@ async def create_player(player: CreatePlayer, db: Session = Depends(get_db)) -> 
     return dbPlayerToAdd
 
 
-@router.get('/players/{playerId}', tags=['Players'], status_code=200)
+@router.get('/players/{playerId}', tags=['Players'], status_code=200, response_model=Player, responses={404: {'description': 'Player \<id\> not found'}})
 async def read_player(playerId: int, db: Session = Depends(get_db)):
     logging.debug(f'Read Player: {playerId}')
     db_player = db.query(DbPlayer).filter(DbPlayer.playerId == playerId).first()
     if db_player is None:
-        return {'message': 'Player not found'}
+        raise HTTPException(status_code=404, detail=f'Player {playerId} not found')
     player = Player(
         playerId=db_player.playerId,
         playerName=db_player.playerName,
@@ -85,47 +83,45 @@ async def read_player(playerId: int, db: Session = Depends(get_db)):
     return player
 
 
-@router.put('/players/{playerId}', tags=['Players'], status_code=200)
-async def update_player(playerId: int, player: Player, db: Session = Depends(get_db)):
-    logging.debug(f'Update Player: {playerId} {player}')
+@router.put('/players/{playerId}', tags=['Players'], status_code=200, response_model=Player, responses={404: {'description': 'Player \<id\> not found to update'}})
+async def update_player(playerId: int, updated_player: UpdatePlayer, db: Session = Depends(get_db)):
+    try:
+        logging.debug(f'Update Player: {playerId} {updated_player}')
+        db_player = db.query(DbPlayer).filter(DbPlayer.playerId == playerId).first()
+        if db_player is None:
+            raise HTTPException(status_code=404, detail='Original player not found to update')
+        db_player.playerName = updated_player.playerName if updated_player.playerName else db_player.playerName
+        db_player.password = updated_player.password if updated_player.password else db_player.password
+        db_player.email = updated_player.email if updated_player.email else db_player.email
+        db_player.isAdmin = updated_player.isAdmin if updated_player.isAdmin is not None else db_player.isAdmin
+        db_player.isActive = updated_player.isActive if updated_player.isActive is not None else db_player.isActive
+        db.commit()
+        db.refresh(db_player)
+        updated_player = Player(
+            playerId=db_player.playerId,
+            playerName=db_player.playerName,
+            password=db_player.password,
+            email=db_player.email,
+            isAdmin=db_player.isAdmin,
+            isActive=db_player.isActive,
+        )
+    except Exception as e:
+        logging.error(f'Error updating player: {e}')
+        raise
+    return updated_player
+
+
+@router.delete('/players/{playerId}', tags=['Players'], status_code=204)
+async def delete_player(playerId: int, db: Session = Depends(get_db)):
+    logging.debug(f'Delete Player: {playerId}')
     db_player = db.query(DbPlayer).filter(DbPlayer.playerId == playerId).first()
     if db_player is None:
-        return {'message': 'Player not found'}
-    db_player.playerName = player.playerName
-    db_player.password = player.password
-    db_player.email = player.email
-    db_player.isAdmin = player.isAdmin
-    db.commit()
-    db.refresh(db_player)
-    player = Player(
-        playerId=db_player.playerId,
-        playerName=db_player.playerName,
-        password=db_player.password,
-        email=db_player.email,
-        isAdmin=db_player.isAdmin,
-    )
-    return player
-
-
-@router.delete('/players/{user_id}', tags=['Players'], status_code=204)
-async def delete_player(user_id: int, db: Session = Depends(get_db)):
-    logging.debug(f'Delete Player: {user_id}')
-    db_player = db.query(DbPlayer).filter(DbPlayer.userId == user_id).first()
-    if db_player is None:
-        return {'message': 'Player not found'}
+        raise HTTPException(status_code=404, detail='Player not found to delete')
     db.delete(db_player)
     db.commit()
-    player = Player(
-        userId=db_player.userId,
-        playerName=db_player.playerName,
-        password=db_player.password,
-        email=db_player.email,
-        isAdmin=db_player.isAdmin,
-    )
-    return player
+    return
 
-
-@router.get('/players/', tags=['Players'], status_code=200)
+@router.get('/players/', tags=['Players'], status_code=200, response_model=list[Player])
 async def get_all_players(db: Session = Depends(get_db)):
     logging.debug('Get All Players Endpoint')
     db_players = db.query(DbPlayer).all()

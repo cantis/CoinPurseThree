@@ -34,10 +34,11 @@ app = FastAPI(
     version='0.1.0',
     openapi_url='/api/v1/openapi.json',
     openapi_tags=[
-        {'name': 'Test', 'description': 'Diagnostic endpoint(s).'},
         {'name': 'Players', 'description': 'Endpoints for Player Management.'},
         {'name': 'Characters', 'description': 'Endpoints for Character Management.'},
         {'name': 'Transactions', 'description': 'Endpoints for Transactions.'},
+        {'name': 'Test', 'description': 'Diagnostic endpoint(s).'},
+        {'name': 'Healthcheck', 'description': 'Healthcheck endpoint.'},
     ],
     license_info={
         'name': 'MIT',
@@ -51,7 +52,7 @@ app.include_router(characters.router)
 app.include_router(transaction.router)
 
 
-@app.get('/', tags=['Healthcheck'])
+@app.get('/', tags=['Healthcheck'], status_code=200, summary='Check if Coinpurse is up.')
 async def root():
     logging.debug('root endpoint')
     """Root endpoint for the API."""

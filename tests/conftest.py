@@ -26,11 +26,8 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 # this works like a mock, but it's not a mock. It's a real database session that is used for testing
 def override_get_db():
     """Override the database session for testing."""
-    database = TestingSessionLocal()
-    try:
-        yield database
-    finally:
-        database.close()
+    with TestingSessionLocal() as session:
+        yield session
 
 
 app.dependency_overrides[get_db] = override_get_db

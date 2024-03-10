@@ -38,9 +38,6 @@ To create a migration
 To run the migration
 `PS alembic upgrade head `
 
-To create alembic database
-`PS alembic upgrade head `
-
 **28 Feb 24**
 Going to try and continue with the test setup but for now it will be with an 'on disk' database.
 
@@ -48,3 +45,4 @@ Going to try and continue with the test setup but for now it will be with an 'on
 Got the tests running against a on-disk database, it's not ideal, still can't create an in-memory db
 and get the tables created. But, all of the test fixture setup etc. is in the conftest and it's
 now ready to be used with other tests.
+

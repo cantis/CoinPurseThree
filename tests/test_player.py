@@ -44,17 +44,33 @@ def test_get_player() -> None:
 
 def test_update_player() -> None:
     # arrange
+    # add a player to the database to start
+    data = {
+        'playerName': 'test_player',
+        'password': 'test_password',
+        'email': 'test@noplace.com',
+        'isAdmin': False,
+    }
+    client.post(
+        '/players/',
+        json=data,
+    )
+
+    # act
+    # update the player
     data = {
         'playerName': 'updated_player',
         'password': 'updated_password',
         'email': 'updated@noplace.com',
         'isAdmin': True,
+        'isActive': False,
     }
-    # act
+
     response = client.put(
         '/players/1',
         json=data,
     )
+
     # assert
     assert response.status_code == 200
     response_data = response.json()
@@ -66,18 +82,21 @@ def test_update_player() -> None:
 
 def test_delete_player() -> None:
     # arrange
-    db = override_get_db()
-    player = Player(
-        playerName='test_player',
-        password='test_password',
-        email='test@noplace.com',
-        isAdmin=False
+    # add a player to the database to start
+    data = {
+        'playerName': 'test_player',
+        'password': 'test_password',
+        'email': 'test@noplace.com',
+        'isAdmin': False,
+    }
+    client.post(
+        '/players/',
+        json=data,
     )
-    db.add(player)
-    db.commit()
 
     # act
     response = client.delete('/players/1')
+
     # assert
     assert response.status_code == 204
 
@@ -90,7 +109,7 @@ def test_get_all_players() -> None:
     response_data = response.json()
     assert len(response_data) > 0
 
-def test_invalid_player_id() -> None:
+def test_get_invalid_player_id() -> None:
     # arrange
     # act
     response = client.get('/players/999')
