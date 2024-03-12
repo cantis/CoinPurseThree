@@ -8,7 +8,6 @@ from typing import Optional
 from database.models import get_db, DbPlayer
 
 
-
 router = APIRouter()
 
 logging.basicConfig(

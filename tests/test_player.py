@@ -1,4 +1,4 @@
-from tests.conftest import client, override_get_db
+from tests.conftest import client
 from database.models import DbPlayer as Player
 
 
