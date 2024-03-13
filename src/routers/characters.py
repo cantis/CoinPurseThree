@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from fastapi.params import Depends
 import logging
 from typing import Optional
@@ -62,23 +62,49 @@ async def create_character(character: CreateCharacter, db: Session = Depends(get
 
 
 @router.put('/characters/{character_id}', tags=['Characters'])
-async def update_character(character_id: int, updated_character: Character):
-    for character in characters:
-        if character['id'] == character_id:
-            character.update(updated_character)
-            return {'message': 'Character updated successfully'}
-    return {'message': 'Character not found'}
+async def update_character(character_id: int, updated_character: UpdateCharacter, db: Session = Depends(get_db)) -> Character:
+    try:
+        logging.debug(f'Update Character: {character_id} {updated_character}')
+        db_character = db.query(DbCharacter).filter(DbCharacter.characterId == character_id).first()
+        if db_character is None:
+            raise HTTPException(status_code=404, detail='Character not found')
+        db_character.characterName = updated_character.characterName if updated_character.characterName else db_character.characterName
+        db_character.playerId = updated_character.playerId if updated_character.playerId else db_character.playerId
+        db_character.isActive = updated_character.isActive if updated_character.isActive else db_character.isActive
+        db.commit()
+        db.refresh(db_character)
+        updated_character = Character(
+            characterId=db_character.characterId,
+            characterName=db_character.characterName,
+            playerId=db_character.playerId,
+            isActive=db_character.isActive,
+        )
+    except Exception as e:
+        logging.error(f'Error updating character: {e}')
+        raise
+    return updated_character
+
+@router.delete('/characters/{character_id}', tags=['Characters'], status_code=204)
+async def delete_character(character_id: int, db: Session = Depends(get_db)) -> None:
+    logging.debug(f'Delete Character: {character_id}')
+    db_character = db.query(DbCharacter).filter(DbCharacter.characterId == character_id).first()
+    if db_character is None:
+        raise HTTPException(status_code=404, detail='Character not found')
+    db.delete(db_character)
+    return
 
 
-@router.delete('/characters/{character_id}', tags=['Characters'])
-async def delete_character(character_id: int):
-    for character in characters:
-        if character['id'] == character_id:
-            characters.remove(character)
-            return {'message': 'Character deleted successfully'}
-    return {'message': 'Character not found'}
-
-
-@router.get('/characters', tags=['Characters'])
-async def get_all_characters():
-    return list(characters.values())
+@router.get('/characters', tags=['Characters'], status_code=200, response_model=list[Character] )
+async def get_all_characters(db: Session = Depends(get_db)) -> list[Character]:
+    logging.debug('Get All Characters')
+    db_characters = db.query(DbCharacter).all()
+    characters = []
+    for db_character in db_characters:
+        character = Character(
+            characterId=db_character.characterId,
+            characterName=db_character.characterName,
+            playerId=db_character.playerId,
+            isActive=db_character.isActive,
+        )
+        characters.append(character)
+    return characters

@@ -3,24 +3,40 @@ from database.models import DbCharacter as Character
 
 
 def test_get_characters():
-    # Arrange:
     # Arrange
-    character1 = Character(name='Character 1', level=1)
-    character2 = Character(name='Character 2', level=2)
-    character1.save()
-    character2.save()
+    response_data = {
+        'playerName': 'test_player',
+        'password': 'test_password',
+        'email': 'test@noplace.com',
+        'isAdmin': False,
+        'isActive': True
+    }
+    client.post(
+        '/players/',
+        json=response_data,
+    )
+    character1 = {
+        'characterName': 'Character 1',
+        'playerId': 1,
+        'isActive': True
+    }
+    client.post('/characters/', json=character1)
+    character2 = {
+        'characterName': 'Character 2',
+        'playerId': 1,
+        'isActive': True
+    }
+    client.post('/characters/', json=character2)
 
     # Act
     response = client.get('/characters')
 
     # Assert
     assert response.status_code == 200
-    data = response.json()
-    assert len(data) == 2
-    assert data[0]['name'] == character1.name
-    assert data[0]['level'] == character1.level
-    assert data[1]['name'] == character2.name
-    assert data[1]['level'] == character2.level
+    response_data = response.json()
+    assert len(response_data) > 0
+    assert response_data[0]['characterName'] == character1.name
+    assert response_data[1]['characterName'] == character2.name
 
 
 def test_create_character():
@@ -32,7 +48,7 @@ def test_create_character():
         'isAdmin': False,
         'isActive': True
     }
-    playerAdded = client.post(
+    client.post(
         '/players/',
         json=data,
     )
@@ -52,28 +68,67 @@ def test_create_character():
     assert data['characterName'] == 'Test Character'
     assert data['playerId'] == 1
     assert data['isActive'] is True
-    
+
 
 
 def test_update_character():
     # Arrange
-    new_data = {'name': 'Updated Name', 'level': 2}
+    response_data = {
+        'playerName': 'test_player',
+        'password': 'test_password',
+        'email': 'test@noplace.com',
+        'isAdmin': False,
+        'isActive': True
+    }
+    client.post(
+        '/players/',
+        json=response_data,
+    )
+    response_data = {
+        'characterName': 'Test Character',
+        'playerId': 1,
+        'isActive': False
+    }
+    client.post('/characters/', json=response_data)
 
     # Act
-    response = client.put(f'/characters/{test_character.id}', json=new_data)
+    new_data = {
+        'characterName': 'Adam Alpha',
+        'playerId': 1,
+        'isActive': False
+    }
+    response = client.put('/characters/1', json=new_data)
 
     # Assert
     assert response.status_code == 200
-    data = response.json()
-    assert data['name'] == new_data['name']
-    assert data['level'] == new_data['level']
+    response_data = response.json()
+    assert response_data['characterName'] == 'Adam Alpha'
+    assert response_data['playerId'] == 1
+    assert response_data['isActive'] is False
 
 
 def test_delete_character():
     # Arrange: No arrangement necessary for this test
+    response_data = {
+        'playerName': 'test_player',
+        'password': 'test_password',
+        'email': 'test@noplace.com',
+        'isAdmin': False,
+        'isActive': True
+    }
+    client.post(
+        '/players/',
+        json=response_data,
+    )
+    response_data = {
+        'characterName': 'Test Character',
+        'playerId': 1,
+        'isActive': False
+    }
+    client.post('/characters/', json=response_data)
 
     # Act
-    response = client.delete(f'/characters/{test_character.id}')
+    response = client.delete('/characters/1')
 
     # Assert
     assert response.status_code == 204
