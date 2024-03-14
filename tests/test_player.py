@@ -1,7 +1,6 @@
 from tests.conftest import client
 from database.models import DbPlayer as Player
 
-
 def test_create_player() -> None:
     # arrange
     data = {

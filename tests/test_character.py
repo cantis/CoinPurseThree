@@ -1,6 +1,17 @@
 from tests.conftest import client
 from database.models import DbCharacter as Character
 
+def add_player_to_db(db: Session = Depends(get_db)):
+    data = {
+        'playerName': 'test_player',
+        'password': 'test_password',
+        'email': 'test@noplace.com',
+        'isAdmin': False,
+    }
+
+
+
+
 
 def test_get_characters():
     # Arrange
@@ -35,8 +46,8 @@ def test_get_characters():
     assert response.status_code == 200
     response_data = response.json()
     assert len(response_data) > 0
-    assert response_data[0]['characterName'] == character1.name
-    assert response_data[1]['characterName'] == character2.name
+    assert response_data[0]['characterName'] == 'Character 1'
+    assert response_data[1]['characterName'] == 'Character 2'
 
 
 def test_create_character():
