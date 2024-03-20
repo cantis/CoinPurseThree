@@ -13,8 +13,11 @@ class Base(DeclarativeBase):
 
 def get_db():
     """Get database session."""
-    with SessionLocal() as session:
-        yield session
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 class DbPlayer(Base):

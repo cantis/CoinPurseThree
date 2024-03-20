@@ -1,17 +1,23 @@
+from fastapi.params import Depends
 from tests.conftest import client
 from database.models import DbCharacter as Character
+import pytest
+from sqlalchemy.orm.session import Session
 
-def add_player_to_db(db: Session = Depends(get_db)):
-    data = {
-        'playerName': 'test_player',
-        'password': 'test_password',
-        'email': 'test@noplace.com',
-        'isAdmin': False,
-    }
+from database.models import get_db
 
-
-
-
+# @pytest.fixture(scope='module')
+# def add_player_to_db(db: Session = Depends(get_db)):
+#     data = {
+#         'playerName': 'test_player',
+#         'password': 'test_password',
+#         'email': 'test@noplace.com',
+#         'isAdmin': False,
+#     }
+#     client.post(
+#         '/players/',
+#         json=data,
+#     )
 
 def test_get_characters():
     # Arrange
@@ -52,7 +58,7 @@ def test_get_characters():
 
 def test_create_character():
     # Arrange
-    data = {
+    test_player = {
         'playerName': 'test_player',
         'password': 'test_password',
         'email': 'test@noplace.com',
@@ -61,24 +67,25 @@ def test_create_character():
     }
     client.post(
         '/players/',
-        json=data,
+        json=test_player,
     )
-    data = {
+
+    character_to_add = {
         'characterName': 'Test Character',
         'playerId': 1,
         'isActive': True
     }
 
     # Act
-    response = client.post('/characters/', json=data)
+    response = client.post('/characters/', json=character_to_add)
 
     # Assert
     assert response.status_code == 201
-    data = response.json()
-    assert data['characterId'] == 1
-    assert data['characterName'] == 'Test Character'
-    assert data['playerId'] == 1
-    assert data['isActive'] is True
+    character_to_add = response.json()
+    assert character_to_add['characterId'] == 1
+    assert character_to_add['characterName'] == 'Test Character'
+    assert character_to_add['playerId'] == 1
+    assert character_to_add['isActive'] is True
 
 
 

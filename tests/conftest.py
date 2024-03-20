@@ -1,16 +1,15 @@
+from fastapi.params import Depends
 from fastapi.testclient import TestClient
-import os
-from os import path
 import pytest
 from sqlalchemy import StaticPool, create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 
-from database.models import Base, get_db
+from database.models import Base, DbPlayer, get_db
 from src.main import app
 
-TEST_DATABASE_URL = 'sqlite:///instance/coin_purse_temp_test.db'
+TEST_DATABASE_URL = 'sqlite:///:memory:'
 
-client = TestClient(app) # fastapi test client
+client = TestClient(app)  # fastapi test client
 
 engine = create_engine(
     TEST_DATABASE_URL,
@@ -21,6 +20,7 @@ engine = create_engine(
 )
 
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 
 # This method and the dependency_overide below, override the get_db method in the main.py file for testing
 # this works like a mock, but it's not a mock. It's a real database session that is used for testing
@@ -33,19 +33,30 @@ def override_get_db():
 app.dependency_overrides[get_db] = override_get_db
 
 
-@pytest.fixture(scope='module', autouse=True)
+@pytest.fixture(scope='function', autouse=True)
 def create_test_database():
     """Setup the database for the test session and teardown after"""
-
-    # Note: as of 2024-03-07, migrations are not working with the in-memory database
-    # so I'm working 'on disk' for now. This seems to be a known problem with alembic/sqlalchemy
-
-    # Drop the database if it exists
-    file_path = TEST_DATABASE_URL.removeprefix('sqlite:///')
-    if path.exists(file_path):
-        os.remove(file_path)
 
     # Create the database
     Base.metadata.create_all(engine)
     yield
     engine.dispose()
+
+
+@pytest.fixture(scope='function')
+def add_test_player():
+    """Add a player to the database for testing."""
+    test_db: Session = TestingSessionLocal()
+    new_player = DbPlayer(
+        playerName='test_player',
+        password='monday1',
+        email='someone@gmail.com',
+        isAdmin=False,
+        isActive=True,
+    )
+    try:
+        test_db.add(new_player)
+        test_db.commit()
+    except Exception as e:
+        # Handle the exception here
+        print(f"An error occurred: {str(e)}")

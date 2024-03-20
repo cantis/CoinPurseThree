@@ -26,8 +26,9 @@ def test_create_player() -> None:
     assert response_data['isAdmin'] is False
 
 
-def test_get_player() -> None:
+def test_get_player(add_test_player) -> None:
     # arrange
+
 
     # act
     response = client.get('/players/1')
@@ -37,14 +38,14 @@ def test_get_player() -> None:
     response_data = response.json()
     assert response_data['playerId'] == 1
     assert response_data['playerName'] == 'test_player'
-    assert response_data['password'] == 'test_password'
-    assert response_data['email'] == 'test@noplace.com'
+    assert response_data['password'] == 'monday1'
+    assert response_data['email'] == 'someone@gmail.com'
     assert response_data['isAdmin'] is False
 
 def test_update_player() -> None:
     # arrange
     # add a player to the database to start
-    data = {
+    original_player = {
         'playerName': 'test_player',
         'password': 'test_password',
         'email': 'test@noplace.com',
@@ -52,12 +53,13 @@ def test_update_player() -> None:
     }
     client.post(
         '/players/',
-        json=data,
+        json=original_player,
     )
 
     # act
     # update the player
     data = {
+        'playerId': 1,
         'playerName': 'updated_player',
         'password': 'updated_password',
         'email': 'updated@noplace.com',
@@ -99,7 +101,7 @@ def test_delete_player() -> None:
     # assert
     assert response.status_code == 204
 
-def test_get_all_players() -> None:
+def test_get_all_players(add_test_player) -> None:
     # arrange
     # act
     response = client.get('/players')
