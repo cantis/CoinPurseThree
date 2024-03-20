@@ -1,10 +1,9 @@
-from fastapi.params import Depends
 from fastapi.testclient import TestClient
 import pytest
 from sqlalchemy import StaticPool, create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
-from database.models import Base, DbPlayer, get_db
+from database.models import Base, DbPlayer, DbCharacter, get_db
 from src.main import app
 
 TEST_DATABASE_URL = 'sqlite:///:memory:'
@@ -42,21 +41,37 @@ def create_test_database():
     yield
     engine.dispose()
 
-
 @pytest.fixture(scope='function')
 def add_test_player():
     """Add a player to the database for testing."""
-    test_db: Session = TestingSessionLocal()
-    new_player = DbPlayer(
+    db: Session = TestingSessionLocal()
+    player_to_add = DbPlayer(
         playerName='test_player',
-        password='monday1',
-        email='someone@gmail.com',
+        password='test_password',
+        email='test@noplace.com',
         isAdmin=False,
         isActive=True,
     )
-    try:
-        test_db.add(new_player)
-        test_db.commit()
-    except Exception as e:
-        # Handle the exception here
-        print(f"An error occurred: {str(e)}")
+    db.add(player_to_add)
+    db.commit()
+
+@pytest.fixture(scope='function')
+def add_test_characters(add_test_player):
+    """Add two characters to the database for testing."""
+    db: Session = TestingSessionLocal()
+    character_one_to_add = DbCharacter(
+        characterName='Character 1',
+        playerId=1,
+        isActive=True
+    )
+    character_two_to_add = DbCharacter(
+        characterName='Character 2',
+        playerId=1,
+        isActive=True
+    )
+    db.add(character_one_to_add)
+    db.add(character_two_to_add)
+    db.commit()
+
+
+

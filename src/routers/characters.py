@@ -39,12 +39,20 @@ class UpdateCharacter(BaseModel):
 
 # endregion
 
-@router.get('/characters/{character_id}', tags=['Characters'])
-async def get_character(character_id: int):
-    for character in characters:
-        if character['id'] == character_id:
-            return character
-    return {'message': 'Character not found'}
+@router.get('/characters/{character_id}', tags=['Characters'], status_code=200, response_model=Character, responses={404: {'description': 'Character \<id\> not found'}})
+async def get_character(character_id: int, db: Session = Depends(get_db)) -> Character:
+    """Get a character by ID."""
+    logging.debug(f'Get Character: {character_id}')
+    db_character = db.query(DbCharacter).filter(DbCharacter.characterId == character_id).first()
+    if db_character is None:
+        raise HTTPException(status_code=404, detail=f'Character {character_id} not found')
+    character = Character(
+        characterId=db_character.characterId,
+        characterName=db_character.characterName,
+        playerId=db_character.playerId,
+        isActive=db_character.isActive,
+    )
+    return character
 
 
 @router.post('/characters', tags=['Characters'], status_code=201, response_model=Character)
@@ -61,7 +69,7 @@ async def create_character(character: CreateCharacter, db: Session = Depends(get
     return dbCharacterToAdd
 
 
-@router.put('/characters/{character_id}', tags=['Characters'])
+@router.put('/characters/{character_id}', tags=['Characters'], status_code=200, response_model=Character, responses={404: {'description': 'Character \<id\> not found'}}    )
 async def update_character(character_id: int, updated_character: UpdateCharacter, db: Session = Depends(get_db)) -> Character:
     try:
         logging.debug(f'Update Character: {character_id} {updated_character}')
@@ -81,15 +89,15 @@ async def update_character(character_id: int, updated_character: UpdateCharacter
         )
     except Exception as e:
         logging.error(f'Error updating character: {e}')
-        raise
+        raise HTTPException(status_code=500, detail='Internal server error updating character.') from e
     return updated_character
 
-@router.delete('/characters/{character_id}', tags=['Characters'], status_code=204)
+@router.delete('/characters/{character_id}', tags=['Characters'], status_code=204, responses={404: {'description': 'Character \<id\> not found'}})
 async def delete_character(character_id: int, db: Session = Depends(get_db)) -> None:
     logging.debug(f'Delete Character: {character_id}')
     db_character = db.query(DbCharacter).filter(DbCharacter.characterId == character_id).first()
     if db_character is None:
-        raise HTTPException(status_code=404, detail='Character not found')
+        raise HTTPException(status_code=404, detail=f'Character {character_id} not found')
     db.delete(db_character)
     return
 

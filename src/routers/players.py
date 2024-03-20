@@ -82,7 +82,7 @@ async def create_player(player: CreatePlayer, db: Session = Depends(get_db)) -> 
 
 
 @router.get('/players/{playerId}', tags=['Players'], status_code=200, response_model=Player, responses={404: {'description': 'Player \<id\> not found'}})
-async def get_player(playerId: int, db: Session = Depends(get_db)):
+async def get_player(playerId: int, db: Session = Depends(get_db)) -> Player:
     """Get a player."""
     logging.debug(f'Read Player: {playerId}')
     db_player = db.query(DbPlayer).filter(DbPlayer.playerId == playerId).first()

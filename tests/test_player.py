@@ -1,7 +1,6 @@
 from tests.conftest import client
-from database.models import DbPlayer as Player
 
-def test_create_player() -> None:
+def test_create_player_ok() -> None:
     # arrange
     data = {
         'playerName': 'test_player',
@@ -26,9 +25,8 @@ def test_create_player() -> None:
     assert response_data['isAdmin'] is False
 
 
-def test_get_player(add_test_player) -> None:
+def test_get_player_ok(add_test_player) -> None:
     # arrange
-
 
     # act
     response = client.get('/players/1')
@@ -38,27 +36,15 @@ def test_get_player(add_test_player) -> None:
     response_data = response.json()
     assert response_data['playerId'] == 1
     assert response_data['playerName'] == 'test_player'
-    assert response_data['password'] == 'monday1'
-    assert response_data['email'] == 'someone@gmail.com'
+    assert response_data['password'] == 'test_password'
+    assert response_data['email'] == 'test@noplace.com'
     assert response_data['isAdmin'] is False
 
-def test_update_player() -> None:
+def test_update_player_ok(add_test_player) -> None:
     # arrange
-    # add a player to the database to start
-    original_player = {
-        'playerName': 'test_player',
-        'password': 'test_password',
-        'email': 'test@noplace.com',
-        'isAdmin': False,
-    }
-    client.post(
-        '/players/',
-        json=original_player,
-    )
 
     # act
-    # update the player
-    data = {
+    data_to_update = {
         'playerId': 1,
         'playerName': 'updated_player',
         'password': 'updated_password',
@@ -69,19 +55,19 @@ def test_update_player() -> None:
 
     response = client.put(
         '/players/1',
-        json=data,
+        json=data_to_update,
     )
 
     # assert
     assert response.status_code == 200
     response_data = response.json()
-    assert response_data['playerId'] == 1
-    assert response_data['playerName'] == 'updated_player'
-    assert response_data['password'] == 'updated_password'
-    assert response_data['email'] == 'updated@noplace.com'
-    assert response_data['isAdmin'] is True
+    assert response_data['playerId'] == data_to_update['playerId']
+    assert response_data['playerName'] == data_to_update['playerName']
+    assert response_data['password'] == data_to_update['password']
+    assert response_data['email'] == data_to_update['email']
+    assert response_data['isAdmin'] is data_to_update['isAdmin']
 
-def test_delete_player() -> None:
+def test_delete_player_ok() -> None:
     # arrange
     # add a player to the database to start
     data = {
@@ -101,7 +87,7 @@ def test_delete_player() -> None:
     # assert
     assert response.status_code == 204
 
-def test_get_all_players(add_test_player) -> None:
+def test_get_all_players_ok(add_test_player) -> None:
     # arrange
     # act
     response = client.get('/players')
@@ -110,9 +96,13 @@ def test_get_all_players(add_test_player) -> None:
     response_data = response.json()
     assert len(response_data) > 0
 
-def test_get_invalid_player_id() -> None:
+def test_get_player_error() -> None:
     # arrange
+
     # act
     response = client.get('/players/999')
+
     # assert
     assert response.status_code == 404
+    response_data = response.json()
+    assert response_data['detail'] == 'Player 999 not found'
