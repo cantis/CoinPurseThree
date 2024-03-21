@@ -18,7 +18,31 @@ The container image that I have chosen also includes a postgresql server, so I c
 ## Tasks
 * [x] Add a devcontainer
 * [x] Split the app into a main.py a router.py and a several routers
-* [ ] Add Models for Player, Character, Transaction
-* [ ] Add a database connection
-* [ ] Add a database migration
-* [ ] Add a database seed
+* [x] Add Models for Player, Character, Transaction
+* [x] Add a database connection
+* [x] Add a database migration
+* [ ] Add a database seed (required for operation, if any)
+* [ ] Add a database test seed (required for testing)
+* [ ] Add Tests for Player
+* [ ] Add Tests for Character
+* [ ] Add Tests for Transaction
+
+## Alembic notes
+
+To initialize alembic (creates a folder called alembic)
+`PS alembic init alembic `
+
+To create a migration
+`PS alembic revision --autogenerate -m "create player table" `
+
+To run the migration
+`PS alembic upgrade head `
+
+**28 Feb 24**
+Going to try and continue with the test setup but for now it will be with an 'on disk' database.
+
+**7 Mar 24**
+Got the tests running against a on-disk database, it's not ideal, still can't create an in-memory db
+and get the tables created. But, all of the test fixture setup etc. is in the conftest and it's
+now ready to be used with other tests.
+

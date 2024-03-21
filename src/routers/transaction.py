@@ -1,29 +1,44 @@
-from decimal import Decimal
+from fastapi import APIRouter
+from pydantic import BaseModel, Field
 
-import fastapi
-from fastapi import Path
-from pydantic import BaseModel
-
-router = fastapi.APIRouter()
-
+router = APIRouter()
 
 class Transaction(BaseModel):
-    character_id: int
-    item: int
-    price: Decimal
-    is_sale: bool = False
-
+    """Represents a transaction, adding or removing funds from a character's wallet."""
+    id: int
+    amount: float = Field (..., description="Positive for deposits, negative for withdrawals.")
+    description: str
 
 transactions = []
 
+@router.get("/transactions", tags=["Transactions"])
+def get_transactions():
+    return transactions
 
-@router.post('/transaction/buy/')
-async def buy():
-    '''Remove money from player, optional: record item in inventory'''
-    return {'message': 'buy'}
+@router.get("/transactions/{transaction_id}", tags=["Transactions"])
+def get_transaction(transaction_id: int):
+    for transaction in transactions:
+        if transaction.id == transaction_id:
+            return transaction
+    return {"message": "Transaction not found"}
 
+@router.post("/transactions", tags=["Transactions"])
+def create_transaction(transaction: Transaction):
+    transactions.append(transaction)
+    return {"message": "Transaction created successfully"}
 
-@router.post('/transaction/sell/')
-async def sell():
-    '''Add money to player, optional: remove item from inventory'''
-    return {'message': 'sell'}
+@router.put("/transactions/{transaction_id}", tags=["Transactions"])
+def update_transaction(transaction_id: int, updated_transaction: Transaction):
+    for i, transaction in enumerate(transactions):
+        if transaction.id == transaction_id:
+            transactions[i] = updated_transaction
+            return {"message": "Transaction updated successfully"}
+    return {"message": "Transaction not found"}
+
+@router.delete("/transactions/{transaction_id}", tags=["Transactions"])
+def delete_transaction(transaction_id: int):
+    for i, transaction in enumerate(transactions):
+        if transaction.id == transaction_id:
+            del transactions[i]
+            return {"message": "Transaction deleted successfully"}
+    return {"message": "Transaction not found"}
