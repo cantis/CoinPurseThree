@@ -46,7 +46,7 @@ app = FastAPI(
     },
 )
 
-# Include the routers
+# Include the routers, add additional routers here as needed
 app.include_router(players.router)
 app.include_router(characters.router)
 app.include_router(transaction.router)
@@ -63,9 +63,8 @@ async def root():
 async def validation_exception_handler(
     self, request: Request, exc: RequestValidationError
 ) -> JSONResponse:
-    logging.debug('validation_exception_handler')
+    logging.exception('validation_exception_handler')
     exc_str = f'{exc}'.replace('\n', ' ').replace('   ', ' ')
-    # self.logger.error(f'{request}: {exc_str}')
     content = {'status_code': 10422, 'message': exc_str, 'data': None}
     return JSONResponse(
         content=content, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY

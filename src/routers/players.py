@@ -21,33 +21,62 @@ logging.basicConfig(
 # region Pydantic Models
 class CreatePlayer(BaseModel):
     """Create a player."""
-    playerName: str = Field(..., example='player1', description='The name of the player')
+
+    playerName: str = Field(
+        ..., example='player1', description='The name of the player'
+    )
     password: str = Field(..., example='password', description='password for player')
-    email: EmailStr = Field(..., example='someone@gmail.com', description='email for player')
-    isAdmin: bool = Field( Optional=True, default=False, description='Is the player an admin (False)')
-    isActive: bool = Field( Optional=True, default=True, description='Is the player active (True)')
+    email: EmailStr = Field(
+        ..., example='someone@gmail.com', description='email for player'
+    )
+    isAdmin: bool = Field(
+        Optional=True, default=False, description='Is the player an admin (False)'
+    )
+    isActive: bool = Field(
+        Optional=True, default=True, description='Is the player active (True)'
+    )
 
 
 class UpdatePlayer(BaseModel):
     """Update a player."""
+
     playerId: int = Field(..., example=1, description='The ID of the player')
-    playerName: str = Field(..., Optional=True, example='player1', description='The name of the player')
-    password: str = Field(..., Optional=True, example='password', description='password for player')
-    email: EmailStr = Field(..., Optional=True, example='someone@gmail.com', description='email for player')
-    isAdmin: bool = Field(Optional=True, default=False, description='Is the player an admin (False)')
-    isActive: bool = Field(Optional=True, default=True, description='Is the player active (True)')
+    playerName: str = Field(
+        ..., Optional=True, example='player1', description='The name of the player'
+    )
+    password: str = Field(
+        ..., Optional=True, example='password', description='password for player'
+    )
+    email: EmailStr = Field(
+        ..., Optional=True, example='someone@gmail.com', description='email for player'
+    )
+    isAdmin: bool = Field(
+        Optional=True, default=False, description='Is the player an admin (False)'
+    )
+    isActive: bool = Field(
+        Optional=True, default=True, description='Is the player active (True)'
+    )
 
 
 class Player(BaseModel):
     """Represents a player."""
+
     playerId: int = Field(..., example=1, description='The ID of the player')
-    playerName: str = Field(..., example='player1', description='The name of the player')
-    password: str = Field(..., example='password', description='The password for the player')
-    email: EmailStr = Field(..., example='someone@gmail.com', description='The email for the player')
-    isAdmin: bool = Field(Optional=True, default=False, description='Is the player an admin (False)')
-    isActive: bool = Field(Optional=True, default=True, description='Is the player active (True)')
-
-
+    playerName: str = Field(
+        ..., example='player1', description='The name of the player'
+    )
+    password: str = Field(
+        ..., example='password', description='The password for the player'
+    )
+    email: EmailStr = Field(
+        ..., example='someone@gmail.com', description='The email for the player'
+    )
+    isAdmin: bool = Field(
+        Optional=True, default=False, description='Is the player an admin (False)'
+    )
+    isActive: bool = Field(
+        Optional=True, default=True, description='Is the player active (True)'
+    )
 
 
 # endregion
@@ -78,10 +107,18 @@ async def create_player(player: CreatePlayer, db: Session = Depends(get_db)) -> 
         return new_player
     except Exception as e:
         logging.error(f'Error creating player: {e}')
-        raise HTTPException(status_code=500, detail='Internal server error creating player.')
+        raise HTTPException(
+            status_code=500, detail='Internal server error creating player.'
+        )
 
 
-@router.get('/players/{playerId}', tags=['Players'], status_code=200, response_model=Player, responses={404: {'description': 'Player \<id\> not found'}})
+@router.get(
+    '/players/{playerId}',
+    tags=['Players'],
+    status_code=200,
+    response_model=Player,
+    responses={404: {'description': 'Player \<id\> not found'}},
+)
 async def get_player(playerId: int, db: Session = Depends(get_db)) -> Player:
     """Get a player."""
     logging.debug(f'Read Player: {playerId}')
@@ -98,20 +135,46 @@ async def get_player(playerId: int, db: Session = Depends(get_db)) -> Player:
     return player
 
 
-@router.put('/players/{playerId}', tags=['Players'], status_code=200, response_model=Player, responses={404: {'description': 'Player \<id\> not found to update'}})
-async def update_player(playerId: int, updated_player: UpdatePlayer, db: Session = Depends(get_db)) -> Player:
+@router.put(
+    '/players/{playerId}',
+    tags=['Players'],
+    status_code=200,
+    response_model=Player,
+    responses={404: {'description': 'Player \<id\> not found to update'}},
+)
+async def update_player(
+    playerId: int, updated_player: UpdatePlayer, db: Session = Depends(get_db)
+) -> Player:
     """Update a player."""
     logging.debug(f'Update Player: {playerId} {updated_player}')
     db_player = db.query(DbPlayer).filter(DbPlayer.playerId == playerId).first()
     if db_player is None:
-        raise HTTPException(status_code=404, detail='Original player not found to update')
+        raise HTTPException(
+            status_code=404, detail='Original player not found to update'
+        )
 
     try:
-        db_player.playerName = updated_player.playerName if updated_player.playerName else db_player.playerName
-        db_player.password = updated_player.password if updated_player.password else db_player.password
-        db_player.email = updated_player.email if updated_player.email else db_player.email
-        db_player.isAdmin = updated_player.isAdmin if updated_player.isAdmin is not None else db_player.isAdmin
-        db_player.isActive = updated_player.isActive if updated_player.isActive is not None else db_player.isActive
+        db_player.playerName = (
+            updated_player.playerName
+            if updated_player.playerName
+            else db_player.playerName
+        )
+        db_player.password = (
+            updated_player.password if updated_player.password else db_player.password
+        )
+        db_player.email = (
+            updated_player.email if updated_player.email else db_player.email
+        )
+        db_player.isAdmin = (
+            updated_player.isAdmin
+            if updated_player.isAdmin is not None
+            else db_player.isAdmin
+        )
+        db_player.isActive = (
+            updated_player.isActive
+            if updated_player.isActive is not None
+            else db_player.isActive
+        )
         db.commit()
         db.refresh(db_player)
         updated_player = Player(
@@ -138,6 +201,7 @@ async def delete_player(playerId: int, db: Session = Depends(get_db)):
     db.delete(db_player)
     db.commit()
     return
+
 
 @router.get('/players/', tags=['Players'], status_code=200, response_model=list[Player])
 async def get_all_players(db: Session = Depends(get_db)):
