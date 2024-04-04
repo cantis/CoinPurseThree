@@ -3,6 +3,11 @@ from pydantic import BaseModel, Field
 
 router = APIRouter()
 
+class CreateTransaction(BaseModel):
+    """Add a transaction"""
+    
+
+
 
 class Transaction(BaseModel):
     """Represents a transaction, adding or removing funds from a character's wallet."""
