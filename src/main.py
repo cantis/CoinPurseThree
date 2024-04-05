@@ -5,7 +5,7 @@ from fastapi.requests import Request
 from fastapi.responses import JSONResponse
 import logging
 
-from routers import players, characters, transaction
+from src.routers import players, characters, transaction
 
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',

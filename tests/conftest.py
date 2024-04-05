@@ -3,7 +3,7 @@ import pytest
 from sqlalchemy import StaticPool, create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
-from database.models import Base, DbPlayer, DbCharacter, get_db
+from src.database.models import Base, DbPlayer, DbCharacter, get_db
 from src.main import app
 
 TEST_DATABASE_URL = 'sqlite:///:memory:'
@@ -30,7 +30,6 @@ def override_get_db():
 
 
 app.dependency_overrides[get_db] = override_get_db
-
 
 @pytest.fixture(scope='function', autouse=True)
 def create_test_database():

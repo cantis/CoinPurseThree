@@ -5,7 +5,7 @@ from typing import Optional
 from pydantic import BaseModel
 from sqlalchemy.orm.session import Session
 
-from database.models import get_db, DbCharacter
+from src.database.models import get_db, DbCharacter
 
 router = APIRouter()
 

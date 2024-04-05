@@ -3,9 +3,8 @@ from fastapi.params import Depends
 import logging
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.orm.session import Session
-from typing import Optional
 
-from database.models import get_db, DbPlayer
+from src.database.models import get_db, DbPlayer
 
 
 router = APIRouter()
@@ -92,7 +91,6 @@ async def create_player(player: CreatePlayer, db: Session = Depends(get_db)) -> 
         email=player.email,
         isAdmin=player.isAdmin,
     )
-    logging.debug(f'Create Player: {player}')
     try:
         db.add(dbPlayerToAdd)
         db.commit()
