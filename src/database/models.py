@@ -43,8 +43,8 @@ class DbCharacter(Base):
 class DbTransaction(Base):
     """DB Model for a transaction in the game."""
     __tablename__ = 'transactions'
-    transactionId = Column(Integer, primary_key=True)
-    characterId = Column(Integer)
+    transaction_id = Column(Integer, primary_key=True)
+    character_id = Column(Integer)
     amount = Column(Float(precision=2))
     description = Column(String)
-    transactionDate = Column(DateTime)
+    transaction_date = Column(DateTime)
