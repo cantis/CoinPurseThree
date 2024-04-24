@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from src.database.models import get_db, DbTransaction
+from database.models import get_db, DbTransaction
 
 router = APIRouter()
 
@@ -19,7 +19,6 @@ logging.basicConfig(
 
 class CreateTransaction(BaseModel):
     """Add a transaction"""
-
     character_id: int = Field(
         ...,
         Optional=True,
@@ -28,6 +27,7 @@ class CreateTransaction(BaseModel):
     amount: float = Field(
         ...,
         description=' Transaction amount, positive for deposits, negative for withdrawals.',
+        precision=2,
     )
     description: str = Field(
         ..., Optional=True, description='Description of the transaction.'
@@ -36,7 +36,6 @@ class CreateTransaction(BaseModel):
 
 class Transaction(BaseModel):
     """Represents a transaction, adding or removing funds from a character's wallet."""
-
     id: int
     amount: float = Field(
         ..., description='Positive for deposits, negative for withdrawals.'
@@ -61,9 +60,9 @@ def get_transaction(transaction_id: int):
 
 
 @router.post(
-    '/transactions', tags=['Transactions'], status_code=201, response_model=Transaction
+    '/transactions/', tags=['Transactions'], status_code=201, response_model=Transaction
 )
-def create_transaction(
+async def create_transaction(
     transaction: CreateTransaction, db: Session = Depends(get_db)
 ) -> Transaction:
     """Add Transaction to the database."""

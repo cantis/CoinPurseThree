@@ -6,22 +6,27 @@ client = TestClient(router)
 
 def test_create_transaction() -> None:
     # Arrange
-    transaction_data = {'character_id': 1, 'amount': 100.0, 'description': 'Initial deposit'}
+    data = {
+        'character_id': 1,
+        'amount': 100.00,
+        'description': 'Initial deposit',
+    }
 
     # Act
-    response = client.post('/transactions', json=transaction_data)
+    response = client.post(
+        '/transactions/',
+        json=data,
+    )
 
     # Assert
-    try:
-        assert response.status_code == 200
-        response_data = response.json()
-        assert response_data['transaction_id'] is not None
-        assert response_data['character_id'] == 1
-        assert response_data['amount'] == 100.0
-        assert response_data['description'] == 'Initial deposit'
-        assert response_data['transaction_date'] is not None
-    except Exception as e:
-        print(f"An error occurred: {str(e)}")
+    assert response.status_code == 201, 'Incorrect status code returned.'
+    response_data = response.json()
+    assert response_data['transaction_id'] is not None, 'Transaction ID not returned.'
+    assert response_data['character_id'] == 1, 'Character ID not returned.'
+    assert response_data['amount'] == 100.0, 'Incorrect or no amount returned.'
+    assert response_data['description'] == 'Initial deposit', 'Incorrect or no description returned.'
+    assert response_data['transaction_date'] is not None, 'Transaction date not returned or incorrect.'
+
 
 
 def test_get_transactions() -> None:

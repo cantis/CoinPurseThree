@@ -1,3 +1,4 @@
+
 from tests.conftest import client
 
 
@@ -11,7 +12,7 @@ def test_get_characters_ok(add_test_characters):
     assert response.status_code == 200
     response_data = response.json()
     assert len(response_data) > 0
-    assert response_data[0]['characterName'] == 'Character 1'
+    assert response_data[0]['characterName'] == "Character 1"
     assert response_data[1]['characterName'] == 'Character 2'
 
 

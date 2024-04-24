@@ -6,7 +6,8 @@ from sqlalchemy.orm import sessionmaker, Session
 from src.database.models import Base, DbPlayer, DbCharacter, get_db
 from src.main import app
 
-TEST_DATABASE_URL = 'sqlite:///:memory:'
+# TEST_DATABASE_URL = 'sqlite:///:memory:'
+TEST_DATABASE_URL = 'sqlite:///coin_purse_test.db'
 
 client = TestClient(app)  # fastapi test client
 

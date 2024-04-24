@@ -1,11 +1,11 @@
 """Coinpurse API."""
+import logging
+
 from fastapi import FastAPI, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
-import logging
-
-from src.routers import players, characters, transaction
+from routers import characters, players, transaction
 
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -53,7 +53,8 @@ app.include_router(transaction.router)
 
 
 @app.get('/', tags=['Healthcheck'], status_code=200, summary='Check if Coinpurse is up.')
-async def root():
+async def root()-> None:
+    """Root endpoint for the API."""
     logging.debug('root endpoint')
     """Root endpoint for the API."""
     return {'message': 'Coinpurse is UP!'}
@@ -63,6 +64,7 @@ async def root():
 async def validation_exception_handler(
     self, request: Request, exc: RequestValidationError
 ) -> JSONResponse:
+    """Handle validation errors."""
     logging.exception('validation_exception_handler')
     exc_str = f'{exc}'.replace('\n', ' ').replace('   ', ' ')
     content = {'status_code': 10422, 'message': exc_str, 'data': None}

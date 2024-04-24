@@ -1,9 +1,11 @@
 """Sqlalchemy models for the database."""
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, Float, DateTime
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
+from pathlib import Path
 
 DATABASE_URL = 'sqlite:///../instance/coin_purse.db'
 engine = create_engine(DATABASE_URL)
+dbfile = Path(DATABASE_URL).resolve()
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
@@ -12,7 +14,7 @@ class Base(DeclarativeBase):
 
 
 def get_db():
-    """Get database session."""
+    """Get a database session."""
     db = SessionLocal()
     try:
         yield db

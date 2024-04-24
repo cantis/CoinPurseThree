@@ -1,11 +1,16 @@
+"""Character routes."""
+from __future__ import annotations
+
+import logging
+from typing import TYPE_CHECKING
+
+from database.models import DbCharacter, get_db
 from fastapi import APIRouter, HTTPException
 from fastapi.params import Depends
-import logging
-from typing import Optional
 from pydantic import BaseModel
-from sqlalchemy.orm.session import Session
 
-from src.database.models import get_db, DbCharacter
+if TYPE_CHECKING:
+    from sqlalchemy.orm.session import Session
 
 router = APIRouter()
 
@@ -22,26 +27,26 @@ logging.basicConfig(
 class Character(BaseModel):
     """Represents a character."""
 
-    characterId: int
-    characterName: str
-    playerId: int
-    isActive: bool
+    character_id: int
+    character_name: str
+    player_id: int
+    is_active: bool
 
 
 class CreateCharacter(BaseModel):
     """Create a character."""
 
-    characterName: str
-    playerId: int
-    isActive: bool
+    character_name: str
+    player_id: int
+    is_active: bool
 
 
 class UpdateCharacter(BaseModel):
     """Update a character."""
 
-    characterName: Optional[str]
-    playerId: Optional[int]
-    isActive: Optional[bool]
+    character_name: str | None
+    player_id: int | None
+    is_active: bool | None
 
 
 # endregion
@@ -56,39 +61,36 @@ class UpdateCharacter(BaseModel):
 )
 async def get_character(character_id: int, db: Session = Depends(get_db)) -> Character:
     """Get a character by ID."""
-    logging.debug(f'Get Character: {character_id}')
-    db_character = (
-        db.query(DbCharacter).filter(DbCharacter.characterId == character_id).first()
-    )
+    logging.debug('Getting Character', extra={'character_id': character_id})
+    db_character = db.query(DbCharacter).filter(DbCharacter.characterId == character_id).first()
     if db_character is None:
-        raise HTTPException(
-            status_code=404, detail=f'Character {character_id} not found'
-        )
-    character = Character(
-        characterId=db_character.characterId,
-        characterName=db_character.characterName,
-        playerId=db_character.playerId,
-        isActive=db_character.isActive,
+        raise HTTPException(status_code=404, detail=f'Character {character_id} not found')
+    return Character(
+        character_id=db_character.characterId,
+        character_name=db_character.characterName,
+        player_id=db_character.playerId,
+        is_active=db_character.isActive,
     )
-    return character
 
 
 @router.post(
-    '/characters', tags=['Characters'], status_code=201, response_model=Character
+    '/characters',
+    tags=['Characters'],
+    status_code=201,
+    response_model=Character,
 )
-async def create_character(
-    character: CreateCharacter, db: Session = Depends(get_db)
-) -> Character:
-    logging.debug(f'Create Character: {character}')
-    dbCharacterToAdd = DbCharacter(
-        characterName=character.characterName,
-        playerId=character.playerId,
-        isActive=character.isActive,
+async def create_character(character: CreateCharacter, db: Session = Depends(get_db)) -> Character:
+    """Create a character."""
+    logging.debug('Create Character:', extra={'character': character})
+    character_to_add = DbCharacter(
+        characterName=character.character_name,
+        playerId=character.player_id,
+        isActive=character.is_active,
     )
-    db.add(dbCharacterToAdd)
+    db.add(character_to_add)
     db.commit()
-    db.refresh(dbCharacterToAdd)
-    return dbCharacterToAdd
+    db.refresh(character_to_add)
+    return character_to_add
 
 
 @router.put(
@@ -101,43 +103,28 @@ async def create_character(
 async def update_character(
     character_id: int, updated_character: UpdateCharacter, db: Session = Depends(get_db)
 ) -> Character:
+    """Update a character."""
     try:
-        logging.debug(f'Update Character: {character_id} {updated_character}')
-        db_character = (
-            db.query(DbCharacter)
-            .filter(DbCharacter.characterId == character_id)
-            .first()
-        )
+        logging.debug('Update Character:', extra={'character_id': character_id, 'updated_character': updated_character})
+        db_character = db.query(DbCharacter).filter(DbCharacter.characterId == character_id).first()
         if db_character is None:
             raise HTTPException(status_code=404, detail='Character not found')
         db_character.characterName = (
-            updated_character.characterName
-            if updated_character.characterName
-            else db_character.characterName
+            updated_character.character_name if updated_character.character_name else db_character.characterName
         )
-        db_character.playerId = (
-            updated_character.playerId
-            if updated_character.playerId
-            else db_character.playerId
-        )
-        db_character.isActive = (
-            updated_character.isActive
-            if updated_character.isActive
-            else db_character.isActive
-        )
+        db_character.playerId = updated_character.player_id if updated_character.player_id else db_character.playerId
+        db_character.isActive = updated_character.is_active if updated_character.is_active else db_character.isActive
         db.commit()
         db.refresh(db_character)
         updated_character = Character(
-            characterId=db_character.characterId,
-            characterName=db_character.characterName,
-            playerId=db_character.playerId,
-            isActive=db_character.isActive,
+            character_id=db_character.characterId,
+            character_name=db_character.characterName,
+            player_id=db_character.playerId,
+            is_active=db_character.isActive,
         )
     except Exception as e:
         logging.error(f'Error updating character: {e}')
-        raise HTTPException(
-            status_code=500, detail='Internal server error updating character.'
-        ) from e
+        raise HTTPException(status_code=500, detail='Internal server error updating character.') from e
     return updated_character
 
 
@@ -148,31 +135,26 @@ async def update_character(
     responses={404: {'description': 'Character \<id\> not found'}},
 )
 async def delete_character(character_id: int, db: Session = Depends(get_db)) -> None:
-    logging.debug(f'Delete Character: {character_id}')
-    db_character = (
-        db.query(DbCharacter).filter(DbCharacter.characterId == character_id).first()
-    )
+    """Delete a character by ID."""
+    logging.debug('Delete Character', extra={'character_id': character_id})
+    db_character = db.query(DbCharacter).filter(DbCharacter.characterId == character_id).first()
     if db_character is None:
-        raise HTTPException(
-            status_code=404, detail=f'Character {character_id} not found'
-        )
+        raise HTTPException(status_code=404, detail=f'Character {character_id} not found')
     db.delete(db_character)
-    return
 
 
-@router.get(
-    '/characters', tags=['Characters'], status_code=200, response_model=list[Character]
-)
+@router.get('/characters', tags=['Characters'], status_code=200, response_model=list[Character])
 async def get_all_characters(db: Session = Depends(get_db)) -> list[Character]:
+    """Get all characters."""
     logging.debug('Get All Characters')
     db_characters = db.query(DbCharacter).all()
     characters = []
     for db_character in db_characters:
         character = Character(
-            characterId=db_character.characterId,
-            characterName=db_character.characterName,
-            playerId=db_character.playerId,
-            isActive=db_character.isActive,
+            character_id=db_character.characterId,
+            character_name=db_character.characterName,
+            player_id=db_character.playerId,
+            is_active=db_character.isActive,
         )
         characters.append(character)
     return characters

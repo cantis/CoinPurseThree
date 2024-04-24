@@ -1,11 +1,16 @@
+"""Players Router."""
+from __future__ import annotations
+
+import logging
+from typing import TYPE_CHECKING
+
+from database.models import DbPlayer, get_db
 from fastapi import APIRouter, HTTPException
 from fastapi.params import Depends
-import logging
 from pydantic import BaseModel, EmailStr, Field
-from sqlalchemy.orm.session import Session
 
-from src.database.models import get_db, DbPlayer
-
+if TYPE_CHECKING:
+    from sqlalchemy.orm.session import Session
 
 router = APIRouter()
 
@@ -21,60 +26,91 @@ logging.basicConfig(
 class CreatePlayer(BaseModel):
     """Create a player."""
 
-    playerName: str = Field(
-        ..., example='player1', description='The name of the player'
+    player_name: str = Field(
+        ...,
+        example='player1',
+        description='The name of the player',
     )
     password: str = Field(..., example='password', description='password for player')
     email: EmailStr = Field(
-        ..., example='someone@gmail.com', description='email for player'
+        ...,
+        example='someone@gmail.com',
+        description='email for player',
     )
-    isAdmin: bool = Field(
-        Optional=True, default=False, description='Is the player an admin (False)'
+    is_admin: bool = Field(
+        Optional=True,
+        default=False,
+        description='Is the player an admin (False)',
     )
-    isActive: bool = Field(
-        Optional=True, default=True, description='Is the player active (True)'
+    is_active: bool = Field(
+        Optional=True,
+        default=True,
+        description='Is the player active (True)',
     )
 
 
 class UpdatePlayer(BaseModel):
     """Update a player."""
 
-    playerId: int = Field(..., example=1, description='The ID of the player')
-    playerName: str = Field(
-        ..., Optional=True, example='player1', description='The name of the player'
+    player_id: int = Field(..., example=1, description='The ID of the player')
+    player_name: str = Field(
+        ...,
+        Optional=True,
+        example='player1',
+        description='The name of the player',
     )
     password: str = Field(
-        ..., Optional=True, example='password', description='password for player'
+        ...,
+        Optional=True,
+        example='password',
+        description='password for player',
     )
     email: EmailStr = Field(
-        ..., Optional=True, example='someone@gmail.com', description='email for player'
+        ...,
+        Optional=True,
+        example='someone@gmail.com',
+        description='email for player',
     )
-    isAdmin: bool = Field(
-        Optional=True, default=False, description='Is the player an admin (False)'
+    is_admin: bool = Field(
+        Optional=True,
+        default=False,
+        description='Is the player an admin (False)',
     )
-    isActive: bool = Field(
-        Optional=True, default=True, description='Is the player active (True)'
+    is_active: bool = Field(
+        Optional=True,
+        default=True,
+        description='Is the player active (True)',
     )
 
 
 class Player(BaseModel):
     """Represents a player."""
 
-    playerId: int = Field(..., example=1, description='The ID of the player')
-    playerName: str = Field(
-        ..., example='player1', description='The name of the player'
+    player_id: int = Field(..., example=1, description='The ID of the player')
+    player_name: str = Field(
+        ...,
+        example='player1',
+        description='The name of the player',
     )
     password: str = Field(
-        ..., example='password', description='The password for the player'
+        ...,
+        example='password',
+        description='The password for the player',
     )
     email: EmailStr = Field(
-        ..., example='someone@gmail.com', description='The email for the player'
+        ...,
+        example='someone@gmail.com',
+        description='The email for the player',
     )
-    isAdmin: bool = Field(
-        Optional=True, default=False, description='Is the player an admin (False)'
+    is_admin: bool = Field(
+        Optional=True,
+        default=False,
+        description='Is the player an admin (False)',
     )
-    isActive: bool = Field(
-        Optional=True, default=True, description='Is the player active (True)'
+    is_active: bool = Field(
+        Optional=True,
+        default=True,
+        description='Is the player active (True)',
     )
 
 
@@ -84,30 +120,28 @@ class Player(BaseModel):
 @router.post('/players/', tags=['Players'], status_code=201, response_model=Player)
 async def create_player(player: CreatePlayer, db: Session = Depends(get_db)) -> Player:
     """Create a player."""
-    logging.debug(f'Create Player: {player}')
-    dbPlayerToAdd = DbPlayer(
-        playerName=player.playerName,
+    logging.debug('Create Player', extra={'player': player})
+    db_player_to_add = DbPlayer(
+        playerName=player.player_name,
         password=player.password,
         email=player.email,
-        isAdmin=player.isAdmin,
+        isAdmin=player.is_admin,
     )
     try:
-        db.add(dbPlayerToAdd)
+        db.add(db_player_to_add)
         db.commit()
-        db.refresh(dbPlayerToAdd)
+        db.refresh(db_player_to_add)
         new_player = Player(
-            playerId=dbPlayerToAdd.playerId,
-            playerName=dbPlayerToAdd.playerName,
-            password=dbPlayerToAdd.password,
-            email=dbPlayerToAdd.email,
-            isAdmin=dbPlayerToAdd.isAdmin,
+            player_id=db_player_to_add.playerId,
+            player_name=db_player_to_add.playerName,
+            password=db_player_to_add.password,
+            email=db_player_to_add.email,
+            is_admin=db_player_to_add.isAdmin,
         )
         return new_player
     except Exception as e:
         logging.error(f'Error creating player: {e}')
-        raise HTTPException(
-            status_code=500, detail='Internal server error creating player.'
-        )
+        raise HTTPException(status_code=500, detail='Internal server error creating player.')
 
 
 @router.get(
@@ -117,20 +151,19 @@ async def create_player(player: CreatePlayer, db: Session = Depends(get_db)) -> 
     response_model=Player,
     responses={404: {'description': 'Player \<id\> not found'}},
 )
-async def get_player(playerId: int, db: Session = Depends(get_db)) -> Player:
+async def get_player(player_id: int, db: Session = Depends(get_db)) -> Player:
     """Get a player."""
-    logging.debug(f'Read Player: {playerId}')
-    db_player = db.query(DbPlayer).filter(DbPlayer.playerId == playerId).first()
+    logging.debug('Read Player:', extra={'playerId': player_id})
+    db_player = db.query(DbPlayer).filter(DbPlayer.playerId == player_id).first()
     if db_player is None:
-        raise HTTPException(status_code=404, detail=f'Player {playerId} not found')
-    player = Player(
-        playerId=db_player.playerId,
-        playerName=db_player.playerName,
+        raise HTTPException(status_code=404, detail=f'Player {player_id} not found')
+    return Player(
+        player_id=db_player.playerId,
+        player_name=db_player.playerName,
         password=db_player.password,
         email=db_player.email,
-        isAdmin=db_player.isAdmin,
+        is_admin=db_player.isAdmin,
     )
-    return player
 
 
 @router.put(
@@ -140,48 +173,31 @@ async def get_player(playerId: int, db: Session = Depends(get_db)) -> Player:
     response_model=Player,
     responses={404: {'description': 'Player \<id\> not found to update'}},
 )
-async def update_player(
-    playerId: int, updated_player: UpdatePlayer, db: Session = Depends(get_db)
-) -> Player:
+async def update_player(player_id: int, updated_player: UpdatePlayer, db: Session = Depends(get_db)) -> Player:
     """Update a player."""
-    logging.debug(f'Update Player: {playerId} {updated_player}')
-    db_player = db.query(DbPlayer).filter(DbPlayer.playerId == playerId).first()
+    logging.debug('Update Player', extra={'player_id': player_id, 'updated_player': updated_player})
+    db_player = db.query(DbPlayer).filter(DbPlayer.playerId == player_id).first()
     if db_player is None:
         raise HTTPException(
-            status_code=404, detail='Original player not found to update'
+            status_code=404,
+            detail='Original player not found to update',
         )
 
     try:
-        db_player.playerName = (
-            updated_player.playerName
-            if updated_player.playerName
-            else db_player.playerName
-        )
-        db_player.password = (
-            updated_player.password if updated_player.password else db_player.password
-        )
-        db_player.email = (
-            updated_player.email if updated_player.email else db_player.email
-        )
-        db_player.isAdmin = (
-            updated_player.isAdmin
-            if updated_player.isAdmin is not None
-            else db_player.isAdmin
-        )
-        db_player.isActive = (
-            updated_player.isActive
-            if updated_player.isActive is not None
-            else db_player.isActive
-        )
+        db_player.playerName = updated_player.player_name if updated_player.player_name else db_player.playerName
+        db_player.password = updated_player.password if updated_player.password else db_player.password
+        db_player.email = updated_player.email if updated_player.email else db_player.email
+        db_player.isAdmin = updated_player.is_admin if updated_player.is_admin is not None else db_player.isAdmin
+        db_player.isActive = updated_player.is_active if updated_player.is_active is not None else db_player.isActive
         db.commit()
         db.refresh(db_player)
         updated_player = Player(
-            playerId=db_player.playerId,
-            playerName=db_player.playerName,
+            player_id=db_player.playerId,
+            player_name=db_player.playerName,
             password=db_player.password,
             email=db_player.email,
-            isAdmin=db_player.isAdmin,
-            isActive=db_player.isActive,
+            is_admin=db_player.isAdmin,
+            is_active=db_player.isActive,
         )
     except Exception as e:
         logging.error(f'Error updating player: {e}')
@@ -190,30 +206,29 @@ async def update_player(
 
 
 @router.delete('/players/{playerId}', tags=['Players'], status_code=204)
-async def delete_player(playerId: int, db: Session = Depends(get_db)):
+async def delete_player(player_id: int, db: Session = Depends(get_db)) -> None:
     """Delete a player."""
-    logging.debug(f'Delete Player: {playerId}')
-    db_player = db.query(DbPlayer).filter(DbPlayer.playerId == playerId).first()
+    logging.debug('Delete Player:', extra={'playerId': player_id})
+    db_player = db.query(DbPlayer).filter(DbPlayer.playerId == player_id).first()
     if db_player is None:
         raise HTTPException(status_code=404, detail='Player not found to delete')
     db.delete(db_player)
     db.commit()
-    return
 
 
 @router.get('/players/', tags=['Players'], status_code=200, response_model=list[Player])
-async def get_all_players(db: Session = Depends(get_db)):
+async def get_all_players(db: Session = Depends(get_db)) -> list[Player]:
     """Get all players."""
     logging.debug('Get All Players Endpoint')
     db_players = db.query(DbPlayer).all()
     players = []
     for db_player in db_players:
         player = Player(
-            playerId=db_player.playerId,
-            playerName=db_player.playerName,
+            player_id=db_player.playerId,
+            player_name=db_player.playerName,
             password=db_player.password,
             email=db_player.email,
-            isAdmin=db_player.isAdmin,
+            is_admin=db_player.isAdmin,
         )
         players.append(player)
     return players

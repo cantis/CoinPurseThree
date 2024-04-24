@@ -20,16 +20,22 @@ ruff = "^0.1.5"
 alembic = "^1.12.1"
 httpx = "^0.25.2"
 
-
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "single"
+multiline-quotes = "double"
+
 [tool.ruff.format]
 quote-style = "single"
 
-[tool.ruff.lint.pycodestyle]
-max-line-length = 120
+[tool.ruff.lint]
+select = ["ALL"]
 
 [tool.pytest.ini_options]
 # -ra is for showing the output of the tests that failed

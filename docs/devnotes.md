@@ -35,7 +35,7 @@ To initialize alembic (creates a folder called alembic)
 To create a migration
 `PS alembic revision --autogenerate -m "create player table" `
 
-To run the migration
+To run the migration and create the database
 `PS alembic upgrade head `
 
 **28 Feb 24**
