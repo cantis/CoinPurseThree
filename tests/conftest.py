@@ -1,9 +1,10 @@
-from fastapi.testclient import TestClient
+"""Configuration for the test suite."""
 import pytest
+from fastapi.testclient import TestClient
 from sqlalchemy import StaticPool, create_engine
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import Session, sessionmaker
 
-from src.database.models import Base, DbPlayer, DbCharacter, get_db
+from src.database.models import Base, DbCharacter, DbPlayer, get_db
 from src.main import app
 
 # TEST_DATABASE_URL = 'sqlite:///:memory:'

@@ -1,10 +1,15 @@
+"""Tests for the transaction router."""
 from fastapi.testclient import TestClient
+
 from src.routers.transaction import router
+
+# ruff: noqa: S101 ARG001 ANN001 ignore asserts, arguments unused (fixtures), missing type hint (fixtures)
 
 client = TestClient(router)
 
 
 def test_create_transaction() -> None:
+    """Test create transaction."""
     # Arrange
     data = {
         'character_id': 1,
@@ -26,7 +31,6 @@ def test_create_transaction() -> None:
     assert response_data['amount'] == 100.0, 'Incorrect or no amount returned.'
     assert response_data['description'] == 'Initial deposit', 'Incorrect or no description returned.'
     assert response_data['transaction_date'] is not None, 'Transaction date not returned or incorrect.'
-
 
 
 def test_get_transactions() -> None:
@@ -73,9 +77,7 @@ def test_update_transaction() -> None:
     }
 
     # Act
-    response = client.put(
-        f'/transactions/{transaction_id}', json=updated_transaction_data
-    )
+    response = client.put(f'/transactions/{transaction_id}', json=updated_transaction_data)
 
     # Assert
     assert response.status_code == 200

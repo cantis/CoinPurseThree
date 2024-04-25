@@ -1,11 +1,16 @@
-import datetime
-from fastapi import APIRouter, HTTPException
-import logging
-from pydantic import BaseModel, Field
-from fastapi import Depends
-from sqlalchemy.orm import Session
+"""Transaction router."""
+from __future__ import annotations
 
-from database.models import get_db, DbTransaction
+import datetime
+import logging
+from typing import TYPE_CHECKING
+
+from database.models import DbTransaction, get_db
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel, Field
+
+if TYPE_CHECKING:
+    from sqlalchemy.orm import Session
 
 router = APIRouter()
 
@@ -18,7 +23,8 @@ logging.basicConfig(
 
 
 class CreateTransaction(BaseModel):
-    """Add a transaction"""
+    """Add a transaction."""
+
     character_id: int = Field(
         ...,
         Optional=True,
@@ -36,6 +42,7 @@ class CreateTransaction(BaseModel):
 
 class Transaction(BaseModel):
     """Represents a transaction, adding or removing funds from a character's wallet."""
+
     id: int
     amount: float = Field(
         ..., description='Positive for deposits, negative for withdrawals.'
@@ -47,12 +54,14 @@ transactions = []
 
 
 @router.get('/transactions', tags=['Transactions'])
-def get_transactions():
+def get_transactions() -> list[Transaction]:
+    """Get all transactions."""
     return transactions
 
 
 @router.get('/transactions/{transaction_id}', tags=['Transactions'])
-def get_transaction(transaction_id: int):
+def get_transaction(transaction_id: int) -> dict[str, str] | Transaction:
+    """Get a transaction by ID."""
     for transaction in transactions:
         if transaction.id == transaction_id:
             return transaction
@@ -60,38 +69,38 @@ def get_transaction(transaction_id: int):
 
 
 @router.post(
-    '/transactions/', tags=['Transactions'], status_code=201, response_model=Transaction
+    '/transactions/', tags=['Transactions'], status_code=201, response_model=Transaction,
 )
 async def create_transaction(
     transaction: CreateTransaction, db: Session = Depends(get_db)
 ) -> Transaction:
     """Add Transaction to the database."""
-    logging.debug(f'Create Transaction: {transaction}')
-    dbTransactionToAdd = DbTransaction(
+    logging.debug('Create Transaction:', extra={'transaction': transaction})
+    db_transaction_to_add = DbTransaction(
         character_id=transaction.character_id,
         amount=transaction.amount,
         description=transaction.description,
         transaction_date=datetime.now(),
     )
     try:
-        db.add(dbTransactionToAdd)
+        db.add(db_transaction_to_add)
         db.commit()
-        db.refresh(dbTransactionToAdd)
-        new_transaction = Transaction(
-            transaction_id=dbTransactionToAdd.transaction_id,
-            character_id=dbTransactionToAdd.character_id,
-            amount=dbTransactionToAdd.amount,
-            description=dbTransactionToAdd.description,
-            transaction_date=dbTransactionToAdd.transaction_date,
+        db.refresh(db_transaction_to_add)
+        return Transaction(
+            transaction_id=db_transaction_to_add.transaction_id,
+            character_id=db_transaction_to_add.character_id,
+            amount=db_transaction_to_add.amount,
+            description=db_transaction_to_add.description,
+            transaction_date=db_transaction_to_add.transaction_date,
         )
-        return new_transaction
     except Exception as e:
         logging.error(f'Error creating transaction: {e}')
         raise HTTPException(status_code=500, detail='Error creating transaction')
 
 
 @router.put('/transactions/{transaction_id}', tags=['Transactions'])
-def update_transaction(transaction_id: int, updated_transaction: Transaction):
+def update_transaction(transaction_id: int, updated_transaction: Transaction) -> dict[str, str]:
+    """Update a transaction."""
     for i, transaction in enumerate(transactions):
         if transaction.id == transaction_id:
             transactions[i] = updated_transaction
@@ -100,7 +109,8 @@ def update_transaction(transaction_id: int, updated_transaction: Transaction):
 
 
 @router.delete('/transactions/{transaction_id}', tags=['Transactions'])
-def delete_transaction(transaction_id: int):
+def delete_transaction(transaction_id: int) -> dict[str, str]:
+    """Delete a transaction."""
     for i, transaction in enumerate(transactions):
         if transaction.id == transaction_id:
             del transactions[i]
