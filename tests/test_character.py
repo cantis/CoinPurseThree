@@ -6,7 +6,7 @@ from tests.conftest import client
 # ruff: noqa: S101 ARG001 ANN001 ignore asserts, arguments unused (fixtures), missing type hint (fixtures)
 
 
-def test_get_characters_ok(add_test_characters) -> None:
+def test_get_characters_ok(_add_test_characters) -> None:
     """Test get characters."""
     # Arrange
 
@@ -21,7 +21,7 @@ def test_get_characters_ok(add_test_characters) -> None:
     assert response_data[1]['characterName'] == 'Character 2'
 
 
-def test_create_character_ok(add_test_player) -> None:
+def test_create_character_ok(_add_test_player) -> None:
     """Test create character."""
     # Arrange
     data = {'characterName': 'Test Character', 'playerId': 1, 'isActive': True}
@@ -38,7 +38,7 @@ def test_create_character_ok(add_test_player) -> None:
     assert data['isActive'] is data['isActive']
 
 
-def test_update_character_ok(add_test_player) -> None:
+def test_update_character_ok(_add_test_player) -> None:
     """Test update character."""
     # Arrange
     response_data = {
@@ -60,7 +60,7 @@ def test_update_character_ok(add_test_player) -> None:
     assert response_data['isActive'] is False
 
 
-def test_delete_character(add_test_player) -> None:
+def test_delete_character(_add_test_player) -> None:
     """Test delete character."""
     # Arrange:
     response_data = {
@@ -77,7 +77,7 @@ def test_delete_character(add_test_player) -> None:
     assert response.status_code == html.HTTPStatus.NO_CONTENT.value
 
 
-def test_get_character_by_id_error(add_test_characters) -> None:
+def test_get_character_by_id_error(_add_test_characters) -> None:
     """Test get character by id error."""
     # Arrange
 

@@ -1,6 +1,5 @@
 """Test the main module."""
-import html
-
+from fastapi import status
 from fastapi.testclient import TestClient
 
 from src.main import app
@@ -18,5 +17,5 @@ def test_read_main() -> None:
     response = client.get('/')
 
     # Assert
-    assert response.status_code == html.HTTPStatus.OK.value
+    assert response.status_code == status.HTTP_200_OK
     assert response.json() == {'message': 'Coinpurse is UP!'}
