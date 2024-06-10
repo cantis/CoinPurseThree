@@ -1,5 +1,6 @@
 """Configuration for the test suite."""
 import logging
+from typing import Generator
 
 import pytest
 from fastapi.testclient import TestClient
@@ -29,7 +30,7 @@ engine = create_engine(
     },
     poolclass=StaticPool,
 )
-logging.DEBUG('Engine created: %s', engine)
+logging.debug('Engine created: %s', engine)
 
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -46,7 +47,7 @@ app.dependency_overrides[get_db] = override_get_db
 
 
 @pytest.fixture(autouse=True)
-def _create_test_database():
+def _create_test_database() -> Generator[None, any, None]:
     """Create database for the test session and teardown after."""
     # Create the database
     Base.metadata.create_all(engine)

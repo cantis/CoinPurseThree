@@ -1,6 +1,8 @@
 """Tests for the player module."""
 import html
 
+import pytest
+
 from tests.conftest import client
 
 # ruff: noqa: S101 ARG001 ANN001 ignore asserts, arguments unused (fixtures), missing type hint (fixtures)
@@ -32,7 +34,8 @@ def test_create_player_ok() -> None:
     assert response_data['isAdmin'] is False
 
 
-def test_get_player_ok(_add_test_player) -> None:
+@pytest.mark.usefixtures('_add_test_player')
+def test_get_player_ok() -> None:
     """Test get player."""
     # arrange
 
@@ -49,7 +52,8 @@ def test_get_player_ok(_add_test_player) -> None:
     assert response_data['isAdmin'] is False
 
 
-def test_update_player_ok(_add_test_player) -> None:
+@pytest.mark.usefixtures('_add_test_player')
+def test_update_player_ok() -> None:
     """Test update player."""
     # arrange
 
@@ -100,7 +104,8 @@ def test_delete_player_ok() -> None:
     assert response.status_code == html.httpstatus.NO_CONTENT.value
 
 
-def test_get_all_players_ok(_add_test_player) -> None:
+@pytest.mark.usefixtures('_add_test_player')
+def test_get_all_players_ok() -> None:
     """Test get all players."""
     # arrange
 
