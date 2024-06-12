@@ -1,12 +1,15 @@
 """Test character module."""
 import html
 
+import pytest
+
 from tests.conftest import client
 
 # ruff: noqa: S101 ARG001 ANN001 ignore asserts, arguments unused (fixtures), missing type hint (fixtures)
 
 
-def test_get_characters_ok(_add_test_characters) -> None:
+@pytest.mark.usefixtures('_add_test_characters')
+def test_get_characters_ok() -> None:
     """Test get characters."""
     # Arrange
 

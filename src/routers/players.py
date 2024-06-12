@@ -9,8 +9,8 @@ from fastapi import APIRouter, HTTPException
 from fastapi.params import Depends
 from pydantic import BaseModel, EmailStr, Field
 
-if TYPE_CHECKING:
-    from sqlalchemy.orm.session import Session
+# if TYPE_CHECKING:
+#     from sqlalchemy.orm.session import Session
 
 router = APIRouter()
 
