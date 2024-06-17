@@ -37,6 +37,7 @@ quote-style = "single"
 
 [tool.ruff.lint]
 select = ["ALL"]
+ignore = ["S101", "ARG001", "ANN001"]
 
 [tool.pytest.ini_options]
 # -ra is for showing the output of the tests that failed

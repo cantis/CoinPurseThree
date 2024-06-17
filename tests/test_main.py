@@ -1,12 +1,8 @@
 """Test the main module."""
+
 from fastapi import status
-from fastapi.testclient import TestClient
 
-from src.main import app
-
-# ruff: noqa: S101 ARG001 ANN001 ignore asserts, arguments unused (fixtures), missing type hint (fixtures)
-
-client = TestClient(app)
+from tests.conftest import test_client
 
 
 def test_read_main() -> None:
@@ -14,7 +10,7 @@ def test_read_main() -> None:
     # Arrange
 
     # Act
-    response = client.get('/')
+    response = test_client.get('/')
 
     # Assert
     assert response.status_code == status.HTTP_200_OK
