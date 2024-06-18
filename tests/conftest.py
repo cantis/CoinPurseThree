@@ -6,7 +6,7 @@
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-# from src.routers import characters, players, transaction
+# from src.routers import characters, home, players, transaction
 # from sqlmodel import Session, StaticPool, create_engine, sessionmaker
 
 
@@ -15,6 +15,7 @@ def create_test_app() -> 'FastAPI':
     app = FastAPI(
         openapi_url='/api/v1/openapi.json',
     )
+
     # app.include_router(players.router)
     # app.include_router(characters.router)
     # app.include_router(transaction.router)

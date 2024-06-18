@@ -44,6 +44,6 @@ ignore = ["S101", "ARG001", "ANN001"]
 # -q is for quiet mode
 addopts = "-ra -q"
 # this adds the application to the path for the tests
-pythonpath = [".", "arconverter"]
+pythonpath = ["."]
 # this sets the testpaths to the tests directory
 testpaths = ["tests"]
