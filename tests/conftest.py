@@ -2,7 +2,7 @@
 # import logging
 # from typing import Generator
 
-# import pytest
+import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
