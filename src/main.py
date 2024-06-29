@@ -2,11 +2,15 @@
 import logging
 
 from database.models import create_db_and_tables
+from dotenv import load_dotenv
 from fastapi import FastAPI, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
 from routers import characters, players, transaction
+
+# Load environment variables from .env file
+load_dotenv('.env')
 
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -15,9 +19,6 @@ logging.basicConfig(
     level=logging.DEBUG,
 )
 logging.debug('Coinpurse: Starting')
-
-
-INSTANCE_FOLDER_PATH = '../instance'
 
 
 # application factory pattern
@@ -47,7 +48,7 @@ def create_app() -> FastAPI:
         },
     )
 
-    # Create the database and tables
+    # Create the database and tables if necessary
     create_db_and_tables()
 
     # Include the routers, add additional routers here as needed
@@ -63,6 +64,7 @@ def create_app() -> FastAPI:
 app = create_app()
 
 
+# Root endpoint for the API
 @app.get('/', tags=['Healthcheck'], status_code=200, summary='Check if Coinpurse is up.')
 async def root() -> None:
     """Root endpoint for the API."""
@@ -70,6 +72,7 @@ async def root() -> None:
     return {'message': 'Coinpurse is UP!'}
 
 
+# Handle validation errors
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(
     request: Request,
@@ -82,4 +85,19 @@ async def validation_exception_handler(
     return JSONResponse(
         content=content,
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+    )
+
+
+# Handle general exceptions
+@app.exception_handler(Exception)
+async def general_exception_handler(
+    request: Request,
+    exc: Exception,
+) -> JSONResponse:
+    """Handle general exceptions."""
+    logging.exception('general_exception_handler')
+    content = {'status_code': 500, 'message': 'Internal Server Error', 'data': request.url}
+    return JSONResponse(
+        content=content,
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
     )

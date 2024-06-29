@@ -8,9 +8,9 @@ from sqlmodel import Field, Relationship, Session, SQLModel, create_engine
 
 if TYPE_CHECKING:
     from decimal import Decimal, Enum
+import os
 
-# DATABASE_URL = 'sqlite:///../instance/coin_purse.db'
-DATABASE_URL = 'sqlite:///coin_purse.db'
+DATABASE_URL = os.environ.get('DATABASE_URL')
 engine = create_engine(DATABASE_URL, echo=True)
 
 
