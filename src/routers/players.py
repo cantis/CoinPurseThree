@@ -14,14 +14,6 @@ from pydantic import BaseModel, EmailStr, Field
 
 router = APIRouter()
 
-logging.basicConfig(
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    filename='coinpurse.log',
-    filemode='a',
-    level=logging.DEBUG,
-)
-
-
 # # region Pydantic Models
 # class CreatePlayer(BaseModel):
 #     """Create a player."""

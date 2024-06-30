@@ -1,5 +1,6 @@
 """Coinpurse API."""
 import logging
+import os
 
 from database.models import create_db_and_tables
 from dotenv import load_dotenv
@@ -12,13 +13,16 @@ from routers import characters, players, transaction
 # Load environment variables from .env file
 load_dotenv('.env')
 
+log_path = os.getenv('LOG_PATH', 'coinpurse.log')
+
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
-    filename='coinpurse.log',
+    filename=log_path,
     filemode='a',
     level=logging.DEBUG,
 )
 logging.debug('Coinpurse: Starting')
+logging.debug(f'Log path: {log_path}')
 
 
 # application factory pattern

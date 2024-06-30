@@ -14,13 +14,6 @@ if TYPE_CHECKING:
 
 router = APIRouter()
 
-logging.basicConfig(
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    filename='coinpurse.log',
-    filemode='a',
-    level=logging.DEBUG,
-)
-
 
 # class CreateTransaction(BaseModel):
 #     """Add a transaction."""
