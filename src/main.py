@@ -1,6 +1,7 @@
 """Coinpurse API."""
 import logging
 import os
+import sys
 
 from database.models import create_db_and_tables
 from dotenv import load_dotenv
@@ -13,17 +14,27 @@ from routers import characters, players, transaction
 # Load environment variables from .env file
 load_dotenv('.env')
 
+log_to_stdout = os.getenv('LOG_TO_STDOUT', 'false').lower() in ['true', '1', 't', 'y', 'yes']
 log_path = os.getenv('LOG_PATH', 'coinpurse.log')
 
-logging.basicConfig(
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    filename=log_path,
-    filemode='a',
-    level=logging.DEBUG,
-)
-logging.debug('Coinpurse: Starting')
-logging.debug(f'Log path: {log_path}')
+# Add the the follwing to the docker compose file to log to stdout when running in a container
+# environment:
+#   - LOG_TO_STDOUT=true
 
+if log_to_stdout:
+    logging.basicConfig(
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        stream=sys.stdout,
+        level=logging.DEBUG,
+    )
+else:
+    logging.basicConfig(
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        filename=log_path,
+        filemode='a',
+        level=logging.DEBUG,
+    )
+logging.debug('Coinpurse: Starting')
 
 # application factory pattern
 def create_app() -> FastAPI:
