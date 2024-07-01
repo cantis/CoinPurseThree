@@ -27,13 +27,12 @@ def test_validation_error_handler() -> None:
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
     assert 'detail' in response.text
 
-# def test_general_exception_handler() -> None:
-#     """Test the general exception handler."""
-#     # arrange, act
-#     # This assumes an endpoint '/test-exception' exists for demonstration purposes
-#     response = test_client.get('/test-exception')
+def test_general_exception_handler() -> None:
+    """Test the general exception handler."""
+    # arrange, act
+    # This assumes an endpoint '/test-exception' exists for demonstration purposes
+    response = test_client.get('/test-exception')
 
-#     # assert
-#     assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
-#     assert response.json()['status_code'] == 500
-#     assert response.json()['message'] == 'Internal Server Error'
+    # assert
+    assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+    assert 'Internal Server Error' in response.text
