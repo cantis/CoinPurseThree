@@ -68,3 +68,12 @@ class Transaction(TransactionBase, table=True):
 
     transaction_id: int = Field(primary_key=True)
     transaction_date: datetime = Field(default=datetime.now)
+
+
+class TestItem(SQLModel):
+    """Model for the /test-validation endpoint."""
+
+    name: str
+    description: str = None
+    price: float
+    tax: float = None

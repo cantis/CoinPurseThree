@@ -9,7 +9,7 @@ from fastapi import FastAPI, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
-from routers import characters, players, transaction
+from routers import characters, healthcheck, players, transaction
 
 # Load environment variables from .env file
 load_dotenv('.env')
@@ -67,6 +67,7 @@ def create_app() -> FastAPI:
     create_db_and_tables()
 
     # Include the routers, add additional routers here as needed
+    app.include_router(healthcheck.router)
     app.include_router(players.router)
     app.include_router(characters.router)
     app.include_router(transaction.router)
@@ -77,14 +78,6 @@ def create_app() -> FastAPI:
 # See https://fastapi.tiangolo.com/tutorial/metadata/ for notes on openapi_tags (these show up in the swagger docs)
 # Note: Markdown is supported in the description fields.
 app = create_app()
-
-
-# Root endpoint for the API
-@app.get('/', tags=['Healthcheck'], status_code=200, summary='Check if Coinpurse is up.')
-async def root() -> None:
-    """Root endpoint for the API."""
-    logging.debug('root endpoint hit')
-    return {'message': 'Coinpurse is UP!'}
 
 
 # Handle validation errors

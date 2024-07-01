@@ -6,25 +6,23 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
+from src.routers import healthcheck
+
 # from src.routers import characters, home, players, transaction
 # from sqlmodel import Session, StaticPool, create_engine, sessionmaker
 
 
-def create_test_app() -> 'FastAPI':
+def create_test_client() -> 'FastAPI':
     """Create a FastAPI app for testing."""
-    app = FastAPI(
-        openapi_url='/api/v1/openapi.json',
-    )
+    app = FastAPI()
 
     # app.include_router(players.router)
     # app.include_router(characters.router)
     # app.include_router(transaction.router)
-    return app
+    app.include_router(healthcheck.router)
+    return TestClient(app)
 
-
-test_app = create_test_app()
-test_client = TestClient(test_app)
-
+test_client = create_test_client()
 
 # logging.basicConfig(
 #     format='%(asctime)s - %(levelname)s - %(message)s',
