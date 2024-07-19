@@ -3,7 +3,7 @@ import logging
 
 from fastapi import APIRouter, HTTPException
 
-from src.database.models import TestItem
+from src.models import TestItem
 
 router = APIRouter()
 
@@ -14,6 +14,7 @@ async def root() -> None:
     """Root endpoint for the API."""
     logging.debug('root endpoint hit')
     return {'message': 'Coinpurse is UP!'}
+
 
 # Endpoints for testing validation
 @router.post('/test-validation')

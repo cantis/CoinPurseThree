@@ -4,7 +4,6 @@ version = "0.1.0"
 description = ""
 authors = ["Evan Young <cantis@gmail.com>"]
 readme = "README.md"
-packages = [{include = "coin_purse", from = "src"}]
 license = "MIT"
 
 [tool.poetry.dependencies]
@@ -38,13 +37,13 @@ quote-style = "single"
 
 [tool.ruff.lint]
 select = ["ALL"]
-ignore = ["S101", "ARG001", "ANN001"]
+ignore = ["S101", "ARG001", "ANN001", "ANN101"]
 
 [tool.pytest.ini_options]
 # -ra is for showing the output of the tests that failed
 # -q is for quiet mode
-addopts = "-ra -q"
-# this adds the application to the path for the tests
-pythonpath = ["."]
+addopts = "-ra"
+# this adds the project root and the src directory to the path for the tests
+pythonpath = ["src", "."]
 # this sets the testpaths to the tests directory
 testpaths = ["tests"]

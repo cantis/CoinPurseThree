@@ -4,9 +4,9 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from database.models import Player, PlayerBase
 from fastapi import APIRouter, HTTPException
 from fastapi.params import Depends
+from models import Player
 from pydantic import BaseModel, EmailStr, Field
 
 # if TYPE_CHECKING:

@@ -3,12 +3,12 @@ import logging
 import os
 import sys
 
-from database.models import create_db_and_tables
 from dotenv import load_dotenv
 from fastapi import FastAPI, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
+from models import create_db_and_tables
 from routers import characters, healthcheck, players, transaction
 
 # Load environment variables from .env file

@@ -5,8 +5,8 @@ import datetime
 import logging
 from typing import TYPE_CHECKING
 
-from database.models import Transaction, TransactionBase
 from fastapi import APIRouter, Depends, HTTPException
+from models import Transaction
 from pydantic import BaseModel, Field
 
 if TYPE_CHECKING:

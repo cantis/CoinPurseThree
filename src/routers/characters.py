@@ -4,9 +4,9 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from database.models import Character, CharacterBase
 from fastapi import APIRouter, HTTPException
 from fastapi.params import Depends
+from models import Character
 from pydantic import BaseModel
 
 # if TYPE_CHECKING:
@@ -15,8 +15,6 @@ from pydantic import BaseModel
 router = APIRouter()
 
 # # region Pydantic Models
-
-
 
 
 # class UpdateCharacter(BaseModel):
