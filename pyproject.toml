@@ -27,6 +27,8 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 line-length = 120
+fix = true
+src = ["src/*", "tests"]
 
 [tool.ruff.lint.flake8-quotes]
 inline-quotes = "single"
