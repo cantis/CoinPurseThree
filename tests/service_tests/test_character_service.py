@@ -2,7 +2,6 @@
 from typing import Optional
 
 from sqlmodel import Session, select
-
 from src.models import Character
 
 

@@ -6,47 +6,42 @@ from typing import TYPE_CHECKING
 
 from fastapi import APIRouter, HTTPException
 from fastapi.params import Depends
-from models import Character
+from models import Character, get_session
 from pydantic import BaseModel
 
-# if TYPE_CHECKING:
-#     from sqlalchemy.orm.session import Session
+if TYPE_CHECKING:
+    from sqlalchemy.orm.session import Session
 
 router = APIRouter()
 
-# # region Pydantic Models
+
+class UpdateCharacter(BaseModel):
+    """Update a character."""
+
+    character_name: str | None
+    player_id: int | None
+    is_active: bool | None
 
 
-# class UpdateCharacter(BaseModel):
-#     """Update a character."""
-
-#     character_name: str | None
-#     player_id: int | None
-#     is_active: bool | None
-
-
-# # endregion
-
-
-# @router.get(
-#     '/characters/{character_id}',
-#     tags=['Characters'],
-#     status_code=200,
-#     response_model=Character,
-#     responses={404: {'description': 'Character \<id\> not found'}},
-# )
-# async def get_character(character_id: int, db: Session = Depends(get_db)) -> Character:
-#     """Get a character by ID."""
-#     logging.debug('Getting Character', extra={'character_id': character_id})
-#     db_character = db.query(DbCharacter).filter(DbCharacter.characterId == character_id).first()
-#     if db_character is None:
-#         raise HTTPException(status_code=404, detail=f'Character {character_id} not found')
-#     return Character(
-#         character_id=db_character.characterId,
-#         character_name=db_character.characterName,
-#         player_id=db_character.playerId,
-#         is_active=db_character.isActive,
-#     )
+@router.get(
+    '/characters/{character_id}',
+    tags=['Characters'],
+    status_code=200,
+    response_model=Character,
+    responses={404: {'description': r'Character \<id\> not found'}},
+)
+async def get_character(character_id: int, db: Session = Depends(get_session)) -> Character:
+    """Get a character by ID."""
+    logging.debug('Getting Character', extra={'character_id': character_id})
+    db_character = db.query(Character).filter(Character.characterId == character_id).first()
+    if db_character is None:
+        raise HTTPException(status_code=404, detail=f'Character {character_id} not found')
+    return Character(
+        character_id=db_character.characterId,
+        character_name=db_character.characterName,
+        player_id=db_character.playerId,
+        is_active=db_character.isActive,
+    )
 
 
 # @router.post(

@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "coin-purse"
+name = "src"
 version = "0.1.0"
 description = ""
 authors = ["Evan Young <cantis@gmail.com>"]
@@ -39,7 +39,7 @@ quote-style = "single"
 
 [tool.ruff.lint]
 select = ["ALL"]
-ignore = ["S101", "ARG001", "ANN001", "ANN101"]
+ignore = ["S101", "ARG001", "ANN001", "ANN101", "B008"]
 
 [tool.pytest.ini_options]
 # -ra is for showing the output of the tests that failed
